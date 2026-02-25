@@ -1,0 +1,32 @@
+<%- include('../partials/admin-header') %>
+
+<main class="admin-shell">
+  <h1 class="section-title" style="margin-bottom: 1rem;">Dashboard</h1>
+
+  <section class="admin-grid">
+    <article class="metric">
+      <h3>Portfolio</h3>
+      <strong><%= stats.portfolioCount %></strong>
+    </article>
+    <article class="metric">
+      <h3>Service</h3>
+      <strong><%= stats.serviceCount %></strong>
+    </article>
+    <article class="metric">
+      <h3>Total Inquiries</h3>
+      <strong><%= stats.inquiryCount %></strong>
+    </article>
+    <article class="metric">
+      <h3>New Inquiries</h3>
+      <strong><%= stats.newInquiryCount %></strong>
+    </article>
+  </section>
+
+  <section style="margin-top: 1.4rem;" class="inline-actions">
+    <a class="btn" href="/admin/contents/new?type=portfolio">포트폴리오 추가</a>
+    <a class="btn" href="/admin/contents/new?type=service">서비스 추가</a>
+    <a class="btn ghost" href="/admin/inquiries">문의함 보기</a>
+  </section>
+</main>
+
+<%- include('../partials/admin-footer') %>

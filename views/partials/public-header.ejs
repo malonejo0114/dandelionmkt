@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:wght@500;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+  <body>
+    <div class="watermark" aria-hidden="true">Dandelion</div>
+    <header class="site-header" aria-label="메인 내비게이션">
+      <div class="site-header-inner">
+        <nav class="top-nav">
+          <a class="<%= currentPath === '/' ? 'is-active' : '' %>" href="/">Home</a>
+          <a class="<%= currentPath.startsWith('/about') ? 'is-active' : '' %>" href="/about">About Us</a>
+          <a class="<%= currentPath.startsWith('/portfolio') ? 'is-active' : '' %>" href="/portfolio">Portfolio</a>
+          <a class="<%= currentPath.startsWith('/service') ? 'is-active' : '' %>" href="/service">Service</a>
+          <a class="<%= currentPath.startsWith('/contact') ? 'is-active' : '' %>" href="/contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+    <% if (notice) { %>
+      <div class="notice"><%= notice %></div>
+    <% } %>

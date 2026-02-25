@@ -1,0 +1,303 @@
+<%- include('../partials/admin-header') %>
+
+<main class="admin-shell">
+  <h1 class="section-title" style="margin-bottom: 1rem;">
+    <%= mode === 'create' ? (type === 'portfolio' ? '포트폴리오 추가' : '서비스 추가') : '콘텐츠 수정' %>
+  </h1>
+
+  <% if (error) { %>
+    <div class="error-msg"><%= error %></div>
+  <% } %>
+
+  <form
+    class="form-grid"
+    method="post"
+    enctype="multipart/form-data"
+    action="<%= mode === 'create'
+      ? `/admin/contents?_csrf=${encodeURIComponent(csrfToken)}`
+      : `/admin/contents/${item.id}/update?_csrf=${encodeURIComponent(csrfToken)}` %>"
+  >
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input type="hidden" name="type" value="<%= type %>" />
+    <input type="hidden" id="blocksJson" name="blocks_json" value="<%= item.blocksJson || '[]' %>" />
+
+    <div class="form-row">
+      <label for="title">제목</label>
+      <input id="title" name="title" value="<%= item.title %>" required maxlength="120" />
+    </div>
+
+    <div class="form-row">
+      <label for="summary">요약</label>
+      <textarea id="summary" name="summary" maxlength="500" style="min-height: 90px;"><%= item.summary || '' %></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>블록 에디터 (드래그 정렬 가능)</label>
+      <div class="inline-actions" style="margin-bottom: 0.6rem;">
+        <button class="btn ghost" type="button" id="addTextBlock">텍스트 블록</button>
+        <button class="btn ghost" type="button" id="addImageBlock">이미지 블록</button>
+        <button class="btn ghost" type="button" id="addVideoBlock">영상 블록</button>
+      </div>
+      <div id="blockEditor" style="display: grid; gap: 0.6rem;"></div>
+      <small style="color: var(--text-faint);">이미지/영상 블록은 아래 첨부 파일 업로드 후 해당 파일을 선택하거나 URL을 직접 입력하세요.</small>
+    </div>
+
+    <div class="form-row">
+      <label for="status">상태</label>
+      <select id="status" name="status">
+        <option value="draft" <%= item.status === 'draft' ? 'selected' : '' %>>draft</option>
+        <option value="published" <%= item.status === 'published' ? 'selected' : '' %>>published</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="thumbnail">썸네일 (이미지/영상)</label>
+      <input id="thumbnail" name="thumbnail" type="file" accept="image/*,video/*" />
+      <% if (item.thumbnail_path) { %>
+        <small style="color: var(--text-faint);">현재 파일: <%= item.thumbnail_path %></small>
+      <% } %>
+    </div>
+
+    <div class="form-row">
+      <label for="attachments">본문 첨부 (이미지/영상 다중)</label>
+      <input id="attachments" name="attachments" type="file" multiple accept="image/*,video/*" />
+    </div>
+
+    <div class="inline-actions">
+      <button class="btn" type="submit"><%= mode === 'create' ? '생성' : '저장' %></button>
+      <a class="btn ghost" href="/admin/contents?type=<%= type %>">목록</a>
+    </div>
+  </form>
+
+  <% if (mode === 'edit' && item.mediaAssets && item.mediaAssets.length) { %>
+    <section style="margin-top: 1.5rem;">
+      <h2 style="font-size: 1rem; margin-bottom: 0.8rem;">첨부 파일</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>파일명</th>
+              <th>타입</th>
+              <th>경로</th>
+              <th>액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% item.mediaAssets.forEach((media) => { %>
+              <tr>
+                <td><%= media.id %></td>
+                <td><%= media.original_name %></td>
+                <td><%= media.mime_type %></td>
+                <td><code><%= media.storage_path %></code></td>
+                <td>
+                  <form method="post" action="/admin/contents/<%= item.id %>/media/<%= media.id %>/delete" style="margin: 0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button class="btn danger" type="submit" data-confirm="첨부 파일을 제거할까요?">제거</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  <% } %>
+</main>
+
+<script>
+  (function () {
+    const editor = document.getElementById('blockEditor');
+    const blocksInput = document.getElementById('blocksJson');
+    const form = blocksInput.closest('form');
+    const availableAssets = <%- JSON.stringify(availableAssets || []).replace(/</g, '\\u003c') %>;
+
+    let blocks;
+    try {
+      blocks = JSON.parse(blocksInput.value || '[]');
+    } catch (_err) {
+      blocks = [];
+    }
+
+    if (!Array.isArray(blocks)) blocks = [];
+
+    const createBlock = (blockType) => ({
+      blockType,
+      contentText: '',
+      mediaAssetId: '',
+      mediaUrl: '',
+    });
+
+    const escapeHtml = (value) =>
+      String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const escapeAttr = (value) => escapeHtml(value).replace(/"/g, '&quot;');
+
+    const mediaOptions = (type) => {
+      const list = availableAssets.filter((asset) =>
+        type === 'image'
+          ? asset.mime_type.startsWith('image/')
+          : asset.mime_type.startsWith('video/')
+      );
+      return ['<option value="">-- 미선택 --</option>']
+        .concat(
+          list.map(
+            (asset) =>
+              `<option value="${asset.id}">${asset.original_name} (${asset.id})</option>`
+          )
+        )
+        .join('');
+    };
+
+    let dragIndex = null;
+
+    function render() {
+      editor.innerHTML = '';
+
+      blocks.forEach((block, index) => {
+        const row = document.createElement('article');
+        row.setAttribute('draggable', 'true');
+        row.dataset.index = String(index);
+        row.style.border = '1px solid rgba(255,255,255,0.16)';
+        row.style.borderRadius = '10px';
+        row.style.background = 'rgba(255,255,255,0.02)';
+        row.style.padding = '0.7rem';
+        row.style.display = 'grid';
+        row.style.gap = '0.55rem';
+
+        row.innerHTML = `
+          <div class="inline-actions" style="justify-content: space-between;">
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <span style="cursor:grab;">☰</span>
+              <strong style="font-size:0.84rem;">블록 #${index + 1}</strong>
+            </div>
+            <button class="btn danger" type="button" data-remove-index="${index}">삭제</button>
+          </div>
+          <div class="form-row">
+            <label>타입</label>
+            <select data-type-index="${index}">
+              <option value="text" ${block.blockType === 'text' ? 'selected' : ''}>text</option>
+              <option value="image" ${block.blockType === 'image' ? 'selected' : ''}>image</option>
+              <option value="video" ${block.blockType === 'video' ? 'selected' : ''}>video</option>
+            </select>
+          </div>
+          <div class="form-row" data-text-wrap="${index}" style="display:${block.blockType === 'text' ? 'grid' : 'none'};">
+            <label>텍스트</label>
+            <textarea data-text-index="${index}" style="min-height:120px;">${escapeHtml(block.contentText || '')}</textarea>
+          </div>
+          <div class="form-row" data-media-wrap="${index}" style="display:${block.blockType === 'text' ? 'none' : 'grid'};">
+            <label>첨부 미디어 선택</label>
+            <select data-media-id-index="${index}">
+              ${mediaOptions(block.blockType)}
+            </select>
+            <label>또는 직접 URL 입력</label>
+            <input data-media-url-index="${index}" value="${escapeAttr(block.mediaUrl || '')}" placeholder="/uploads/xxx.jpg 또는 https://..." />
+            <small style="color:var(--text-faint);">미디어 선택 시 URL보다 우선 적용됩니다.</small>
+          </div>
+        `;
+
+        editor.appendChild(row);
+
+        const mediaSelect = row.querySelector(`[data-media-id-index="${index}"]`);
+        if (mediaSelect) {
+          mediaSelect.value = String(block.mediaAssetId || '');
+        }
+      });
+
+      editor.querySelectorAll('[data-remove-index]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const idx = Number(button.getAttribute('data-remove-index'));
+          blocks.splice(idx, 1);
+          render();
+        });
+      });
+
+      editor.querySelectorAll('[data-type-index]').forEach((select) => {
+        select.addEventListener('change', () => {
+          const idx = Number(select.getAttribute('data-type-index'));
+          blocks[idx].blockType = select.value;
+          if (select.value === 'text') {
+            blocks[idx].mediaAssetId = '';
+            blocks[idx].mediaUrl = '';
+          }
+          render();
+        });
+      });
+
+      editor.querySelectorAll('[data-text-index]').forEach((textarea) => {
+        textarea.addEventListener('input', () => {
+          const idx = Number(textarea.getAttribute('data-text-index'));
+          blocks[idx].contentText = textarea.value;
+        });
+      });
+
+      editor.querySelectorAll('[data-media-id-index]').forEach((select) => {
+        select.addEventListener('change', () => {
+          const idx = Number(select.getAttribute('data-media-id-index'));
+          blocks[idx].mediaAssetId = select.value;
+        });
+      });
+
+      editor.querySelectorAll('[data-media-url-index]').forEach((input) => {
+        input.addEventListener('input', () => {
+          const idx = Number(input.getAttribute('data-media-url-index'));
+          blocks[idx].mediaUrl = input.value;
+        });
+      });
+
+      editor.querySelectorAll('article[draggable="true"]').forEach((row) => {
+        row.addEventListener('dragstart', () => {
+          dragIndex = Number(row.dataset.index);
+        });
+
+        row.addEventListener('dragover', (event) => {
+          event.preventDefault();
+          row.style.outline = '1px dashed rgba(255,255,255,0.45)';
+        });
+
+        row.addEventListener('dragleave', () => {
+          row.style.outline = 'none';
+        });
+
+        row.addEventListener('drop', (event) => {
+          event.preventDefault();
+          row.style.outline = 'none';
+
+          const dropIndex = Number(row.dataset.index);
+          if (dragIndex === null || dragIndex === dropIndex) return;
+
+          const [moved] = blocks.splice(dragIndex, 1);
+          blocks.splice(dropIndex, 0, moved);
+          dragIndex = null;
+          render();
+        });
+      });
+    }
+
+    document.getElementById('addTextBlock').addEventListener('click', () => {
+      blocks.push(createBlock('text'));
+      render();
+    });
+
+    document.getElementById('addImageBlock').addEventListener('click', () => {
+      blocks.push(createBlock('image'));
+      render();
+    });
+
+    document.getElementById('addVideoBlock').addEventListener('click', () => {
+      blocks.push(createBlock('video'));
+      render();
+    });
+
+    form.addEventListener('submit', () => {
+      blocksInput.value = JSON.stringify(blocks);
+    });
+
+    render();
+  })();
+</script>
+
+<%- include('../partials/admin-footer') %>

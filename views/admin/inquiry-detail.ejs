@@ -1,0 +1,98 @@
+<%- include('../partials/admin-header') %>
+
+<main class="admin-shell">
+  <h1 class="section-title" style="margin-bottom: 1rem;">문의 상세 #<%= item.id %></h1>
+
+  <section class="table-wrap">
+    <table>
+      <tbody>
+        <tr>
+          <th>이름</th>
+          <td><%= item.name %></td>
+        </tr>
+        <tr>
+          <th>전화번호</th>
+          <td><%= item.phone %></td>
+        </tr>
+        <tr>
+          <th>업체명</th>
+          <td><%= item.company %></td>
+        </tr>
+        <tr>
+          <th>접수일</th>
+          <td><%= item.created_at %></td>
+        </tr>
+        <tr>
+          <th>상태</th>
+          <td><span class="status-badge <%= item.status.toLowerCase() %>"><%= item.status %></span></td>
+        </tr>
+        <tr>
+          <th>동의 여부</th>
+          <td><%= Number(item.consent_given) === 1 ? '동의' : '미동의' %></td>
+        </tr>
+        <tr>
+          <th>동의 시각</th>
+          <td><%= item.consent_at || '-' %></td>
+        </tr>
+        <tr>
+          <th>보관 기한</th>
+          <td><%= item.retention_until || '-' %></td>
+        </tr>
+        <tr>
+          <th>접속 IP</th>
+          <td><%= item.ip_address || '-' %></td>
+        </tr>
+        <tr>
+          <th>User Agent</th>
+          <td style="word-break: break-word;"><%= item.user_agent || '-' %></td>
+        </tr>
+        <tr>
+          <th>문의사항</th>
+          <td style="white-space: pre-line;"><%= item.message %></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <form class="inline-actions" method="post" action="/admin/inquiries/<%= item.id %>/status" style="margin-top: 1rem;">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <select name="status">
+      <option value="NEW" <%= item.status === 'NEW' ? 'selected' : '' %>>NEW</option>
+      <option value="READ" <%= item.status === 'READ' ? 'selected' : '' %>>READ</option>
+      <option value="REPLIED" <%= item.status === 'REPLIED' ? 'selected' : '' %>>REPLIED</option>
+      <option value="CLOSED" <%= item.status === 'CLOSED' ? 'selected' : '' %>>CLOSED</option>
+    </select>
+    <button class="btn" type="submit">상태 저장</button>
+    <a class="btn ghost" href="/admin/inquiries">목록</a>
+  </form>
+
+  <section class="table-wrap" style="margin-top: 1rem;">
+    <table>
+      <thead>
+        <tr>
+          <th>시간</th>
+          <th>액션</th>
+          <th>주체</th>
+          <th>상세</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!logs.length) { %>
+          <tr>
+            <td colspan="4">이 문의에 대한 로그가 없습니다.</td>
+          </tr>
+        <% } %>
+        <% logs.forEach((log) => { %>
+          <tr>
+            <td><%= log.created_at %></td>
+            <td><%= log.action %></td>
+            <td><%= log.actor_type %> / <%= log.actor_id || '-' %></td>
+            <td><%= log.detail || '-' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<%- include('../partials/admin-footer') %>

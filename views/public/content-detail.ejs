@@ -1,0 +1,61 @@
+<%- include('../partials/public-header') %>
+
+<main class="page">
+  <article class="detail-wrap">
+    <h1 class="detail-title"><%= item.title %></h1>
+    <p class="detail-meta"><%= type %> · <%= item.created_at %></p>
+
+    <% if (item.thumbnail_path) { %>
+      <div class="detail-thumb">
+        <img src="<%= item.thumbnail_path %>" alt="<%= item.title %>" />
+      </div>
+    <% } %>
+
+    <% const hasBlocks = item.blocks && item.blocks.length > 0; %>
+    <% if (hasBlocks) { %>
+      <section class="content-blocks">
+        <% item.blocks.forEach((block) => { %>
+          <% if (block.block_type === 'text') { %>
+            <p class="content-block text"><%= block.content_text %></p>
+          <% } else { %>
+            <% const source = block.storage_path || block.media_url; %>
+            <% const mime = block.mime_type || ''; %>
+            <% const isVideo = mime.startsWith('video/') || /\.(mp4|webm|ogg)$/i.test(source || ''); %>
+            <% if (source) { %>
+              <figure class="content-block media">
+                <% if (isVideo) { %>
+                  <video controls playsinline preload="metadata" src="<%= source %>"></video>
+                <% } else { %>
+                  <img src="<%= source %>" alt="<%= block.original_name || item.title %>" />
+                <% } %>
+                <% if (block.content_text) { %>
+                  <figcaption><%= block.content_text %></figcaption>
+                <% } %>
+              </figure>
+            <% } %>
+          <% } %>
+        <% }) %>
+      </section>
+    <% } else { %>
+      <div class="detail-body"><%= item.body || '등록된 상세 설명이 없습니다.' %></div>
+    <% } %>
+
+    <% const usedAssetIds = new Set((item.blocks || []).map((row) => Number(row.media_asset_id)).filter((id) => id > 0)); %>
+    <% const extraAssets = (item.mediaAssets || []).filter((media) => !usedAssetIds.has(Number(media.id))); %>
+    <% if (extraAssets.length) { %>
+      <div class="media-gallery">
+        <% extraAssets.forEach((media) => { %>
+          <div class="media-item">
+            <% if (media.mime_type.startsWith('video/')) { %>
+              <video controls preload="metadata" src="<%= media.storage_path %>"></video>
+            <% } else { %>
+              <img src="<%= media.storage_path %>" alt="<%= media.original_name %>" />
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </article>
+</main>
+
+<%- include('../partials/public-footer') %>

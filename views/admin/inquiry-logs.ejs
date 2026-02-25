@@ -1,0 +1,43 @@
+<%- include('../partials/admin-header') %>
+
+<main class="admin-shell">
+  <div class="admin-top-actions">
+    <h1 class="section-title" style="margin-bottom: 0;">문의 감사 로그</h1>
+    <a class="btn ghost" href="/admin/inquiries">문의 목록</a>
+  </div>
+
+  <section class="table-wrap" style="margin-top: 1rem;">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Inquiry ID</th>
+          <th>Action</th>
+          <th>Actor</th>
+          <th>Detail</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!logs.length) { %>
+          <tr>
+            <td colspan="6">로그가 없습니다.</td>
+          </tr>
+        <% } %>
+
+        <% logs.forEach((row) => { %>
+          <tr>
+            <td><%= row.id %></td>
+            <td><%= row.inquiry_id || '-' %></td>
+            <td><%= row.action %></td>
+            <td><%= row.actor_type %> / <%= row.actor_id || '-' %></td>
+            <td><%= row.detail || '-' %></td>
+            <td><%= row.created_at %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<%- include('../partials/admin-footer') %>

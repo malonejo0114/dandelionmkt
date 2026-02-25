@@ -1,0 +1,56 @@
+<%- include('../partials/admin-header') %>
+
+<main class="admin-shell">
+  <div class="admin-top-actions">
+    <h1 class="section-title" style="margin-bottom: 0;"><%= type === 'portfolio' ? 'Portfolio 관리' : 'Service 관리' %></h1>
+    <a class="btn" href="/admin/contents/new?type=<%= type %>">새 항목 추가</a>
+  </div>
+
+  <nav class="admin-nav" style="margin-top: 0.9rem;">
+    <a class="<%= type === 'portfolio' ? 'is-active' : '' %>" href="/admin/contents?type=portfolio">Portfolio</a>
+    <a class="<%= type === 'service' ? 'is-active' : '' %>" href="/admin/contents?type=service">Service</a>
+  </nav>
+
+  <section class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>제목</th>
+          <th>상태</th>
+          <th>업데이트</th>
+          <th>액션</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!items.length) { %>
+          <tr>
+            <td colspan="5">등록된 항목이 없습니다.</td>
+          </tr>
+        <% } %>
+
+        <% items.forEach((item) => { %>
+          <tr>
+            <td><%= item.id %></td>
+            <td><%= item.title %></td>
+            <td>
+              <span class="status-badge <%= item.status %>"><%= item.status %></span>
+            </td>
+            <td><%= item.updated_at %></td>
+            <td>
+              <div class="inline-actions">
+                <a class="btn ghost" href="/admin/contents/<%= item.id %>/edit">수정</a>
+                <form method="post" action="/admin/contents/<%= item.id %>/delete" style="margin: 0;">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button class="btn danger" type="submit" data-confirm="정말 삭제할까요?">삭제</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<%- include('../partials/admin-footer') %>

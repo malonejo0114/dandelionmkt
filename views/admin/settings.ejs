@@ -1,0 +1,174 @@
+<%- include('../partials/admin-header') %>
+
+<main class="admin-shell">
+  <h1 class="section-title" style="margin-bottom: 1rem;">Settings</h1>
+
+  <% if (error) { %>
+    <div class="error-msg"><%= error %></div>
+  <% } %>
+
+  <section class="table-wrap" style="margin-bottom: 1.2rem;">
+    <table>
+      <tbody>
+        <tr>
+          <th>현재 Tenant</th>
+          <td><strong><%= tenant.name %></strong> (<code><%= tenant.slug %></code>)</td>
+        </tr>
+        <tr>
+          <th>관리자</th>
+          <td><%= admin.display_name %> / <%= admin.username %></td>
+        </tr>
+        <tr>
+          <th>2FA</th>
+          <td><%= Number(admin.twofa_enabled) === 1 ? '활성화' : '비활성화' %></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section style="margin-bottom: 1.5rem;">
+    <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">비밀번호 변경</h2>
+    <form class="form-grid" method="post" action="/admin/settings/password">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="form-row">
+        <label for="currentPassword">현재 비밀번호</label>
+        <input id="currentPassword" name="currentPassword" type="password" required />
+      </div>
+      <div class="form-row">
+        <label for="newPassword">새 비밀번호 (10자+, 대/소문자/숫자/특수문자 포함)</label>
+        <input id="newPassword" name="newPassword" type="password" required />
+      </div>
+      <div class="inline-actions">
+        <button class="btn" type="submit">비밀번호 변경</button>
+      </div>
+    </form>
+  </section>
+
+  <section style="margin-bottom: 1.5rem;">
+    <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">2단계 인증 (TOTP)</h2>
+
+    <% if (Number(admin.twofa_enabled) === 1) { %>
+      <form method="post" action="/admin/settings/2fa/disable">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <button class="btn danger" type="submit">2FA 비활성화</button>
+      </form>
+    <% } else { %>
+      <% if (twoFaQrDataUrl) { %>
+        <div style="border: 1px solid var(--line); border-radius: 12px; padding: 1rem; max-width: 360px; background: rgba(255,255,255,0.02);">
+          <img src="<%= twoFaQrDataUrl %>" alt="2FA QR" style="width: 220px; height: 220px; background: #fff; padding: 0.35rem;" />
+          <p style="margin: 0.7rem 0 0; color: var(--text-faint); font-size: 0.8rem;">시크릿: <code><%= twoFaSecret %></code></p>
+        </div>
+      <% } %>
+
+      <form class="form-grid" method="post" action="/admin/settings/2fa/enable" style="margin-top: 0.8rem; max-width: 360px;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="form-row">
+          <label for="otpCode">앱에서 생성된 OTP 코드</label>
+          <input id="otpCode" name="otpCode" required inputmode="numeric" maxlength="8" />
+        </div>
+        <button class="btn" type="submit">2FA 활성화</button>
+      </form>
+    <% } %>
+  </section>
+
+  <section style="margin-bottom: 1.5rem;">
+    <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">Tenant 설정</h2>
+    <form class="form-grid" method="post" action="/admin/settings/tenant">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+      <div class="form-row">
+        <label for="name">Tenant 이름</label>
+        <input id="name" name="name" required value="<%= tenant.name %>" />
+      </div>
+
+      <div class="form-row">
+        <label for="slug">Tenant Slug</label>
+        <input id="slug" name="slug" required value="<%= tenant.slug %>" />
+      </div>
+
+      <div class="form-row">
+        <label for="inquiryRetentionDays">문의 보관기간(일)</label>
+        <input id="inquiryRetentionDays" name="inquiryRetentionDays" type="number" min="1" max="3650" value="<%= settings.inquiry_retention_days %>" />
+      </div>
+
+      <div class="form-row">
+        <label for="privacyPolicyText">개인정보 수집/보관 안내문</label>
+        <textarea id="privacyPolicyText" name="privacyPolicyText" maxlength="4000" style="min-height: 120px;"><%= settings.privacy_policy_text %></textarea>
+      </div>
+
+      <button class="btn" type="submit">Tenant 설정 저장</button>
+    </form>
+  </section>
+
+  <section>
+    <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">새 Tenant 생성</h2>
+    <form class="form-grid" method="post" action="/admin/settings/tenant/create">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+      <div class="form-row">
+        <label for="newTenantName">Tenant 이름</label>
+        <input id="newTenantName" name="newTenantName" required />
+      </div>
+
+      <div class="form-row">
+        <label for="newTenantSlug">Tenant Slug</label>
+        <input id="newTenantSlug" name="newTenantSlug" required />
+      </div>
+
+      <div class="form-row">
+        <label for="newTenantRetentionDays">문의 보관기간(일)</label>
+        <input id="newTenantRetentionDays" name="newTenantRetentionDays" type="number" min="1" max="3650" value="365" />
+      </div>
+
+      <div class="form-row">
+        <label for="newTenantPrivacyPolicyText">개인정보 안내문</label>
+        <textarea id="newTenantPrivacyPolicyText" name="newTenantPrivacyPolicyText" style="min-height: 120px;">문의 접수 시 개인정보(이름, 연락처, 업체명)를 수집하며, 상담 목적 범위 내에서만 이용합니다.</textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="adminDisplayName">초기 관리자 이름</label>
+        <input id="adminDisplayName" name="adminDisplayName" required />
+      </div>
+
+      <div class="form-row">
+        <label for="adminUsername">초기 관리자 ID</label>
+        <input id="adminUsername" name="adminUsername" required />
+      </div>
+
+      <div class="form-row">
+        <label for="adminPassword">초기 관리자 비밀번호 (정책 동일)</label>
+        <input id="adminPassword" name="adminPassword" type="password" required />
+      </div>
+
+      <button class="btn" type="submit">Tenant 생성</button>
+    </form>
+  </section>
+
+  <section style="margin-top: 1.8rem;">
+    <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">Tenant 목록</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% tenants.forEach((row) => { %>
+            <tr>
+              <td><%= row.id %></td>
+              <td><%= row.name %></td>
+              <td><code><%= row.slug %></code></td>
+              <td><%= row.created_at %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/admin-footer') %>

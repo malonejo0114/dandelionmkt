@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:wght@500;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+  <body>
+    <header class="site-header admin-mode">
+      <div class="site-header-inner">
+        <a class="brand" href="/admin">Admin Panel</a>
+        <nav class="top-nav">
+          <a class="<%= currentPath === '/admin' ? 'is-active' : '' %>" href="/admin">Dashboard</a>
+          <a class="<%= currentPath.startsWith('/admin/contents') ? 'is-active' : '' %>" href="/admin/contents?type=portfolio">Contents</a>
+          <a class="<%= currentPath.startsWith('/admin/inquiries') ? 'is-active' : '' %>" href="/admin/inquiries">Inquiries</a>
+          <a class="<%= currentPath.startsWith('/admin/settings') ? 'is-active' : '' %>" href="/admin/settings">Settings</a>
+        </nav>
+        <form method="post" action="/admin/logout">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button class="btn ghost" type="submit">Logout</button>
+        </form>
+      </div>
+    </header>
+    <% if (notice) { %>
+      <div class="notice"><%= notice %></div>
+    <% } %>

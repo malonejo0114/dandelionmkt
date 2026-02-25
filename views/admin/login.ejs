@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:wght@500;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+  <body>
+    <main class="login-shell">
+      <section class="login-card">
+        <h1>Admin Login</h1>
+
+        <% if (error) { %>
+          <div class="error-msg"><%= error %></div>
+        <% } %>
+
+        <form class="form-grid" method="post" action="/admin/login">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+          <div class="form-row">
+            <label for="tenantSlug">Tenant Slug</label>
+            <input id="tenantSlug" name="tenantSlug" required value="<%= tenantSlug %>" placeholder="dandelion-effect" />
+          </div>
+
+          <div class="form-row">
+            <label for="username">ID</label>
+            <input id="username" name="username" required value="<%= username %>" autocomplete="username" />
+          </div>
+
+          <div class="form-row">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required autocomplete="current-password" />
+          </div>
+
+          <div class="form-row">
+            <label for="otpCode">OTP (2FA 사용 시)</label>
+            <input id="otpCode" name="otpCode" inputmode="numeric" maxlength="8" <%= requiresOtp ? 'required' : '' %> />
+          </div>
+
+          <button class="btn" type="submit">로그인</button>
+        </form>
+
+        <p class="login-help">초기 계정: tenant <code>dandelion-effect</code> / admin / admin1234</p>
+      </section>
+    </main>
+  </body>
+</html>

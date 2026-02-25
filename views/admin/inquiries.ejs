@@ -1,0 +1,57 @@
+<%- include('../partials/admin-header') %>
+
+<main class="admin-shell">
+  <div class="admin-top-actions">
+    <h1 class="section-title" style="margin-bottom: 0;">문의함</h1>
+    <div class="inline-actions">
+      <a class="btn ghost" href="/admin/inquiries/logs">감사 로그</a>
+      <form method="post" action="/admin/inquiries/purge" style="margin: 0;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <button class="btn danger" type="submit" data-confirm="보관기간 만료 문의를 즉시 파기할까요?">만료 문의 파기</button>
+      </form>
+    </div>
+  </div>
+
+  <section class="table-wrap" style="margin-top: 1rem;">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>이름</th>
+          <th>전화번호</th>
+          <th>업체명</th>
+          <th>동의</th>
+          <th>상태</th>
+          <th>접수일</th>
+          <th>보관기한</th>
+          <th>액션</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!items.length) { %>
+          <tr>
+            <td colspan="9">접수된 문의가 없습니다.</td>
+          </tr>
+        <% } %>
+
+        <% items.forEach((item) => { %>
+          <tr>
+            <td><%= item.id %></td>
+            <td><%= item.name %></td>
+            <td><%= item.phone %></td>
+            <td><%= item.company %></td>
+            <td><%= Number(item.consent_given) === 1 ? 'Y' : 'N' %></td>
+            <td><span class="status-badge <%= item.status.toLowerCase() %>"><%= item.status %></span></td>
+            <td><%= item.created_at %></td>
+            <td><%= item.retention_until || '-' %></td>
+            <td>
+              <a class="btn ghost" href="/admin/inquiries/<%= item.id %>">상세</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<%- include('../partials/admin-footer') %>

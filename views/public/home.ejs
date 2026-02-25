@@ -1,0 +1,1258 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>주식회사 민들레효과</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:wght@500;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #050505;
+        --fg: rgba(255, 255, 255, 0.95);
+        --fg-soft: rgba(255, 255, 255, 0.72);
+        --fg-faint: rgba(255, 255, 255, 0.56);
+        --line: rgba(255, 255, 255, 0.2);
+        --accent: #ffd24d;
+        --header-h: 60px;
+        --intro-mask-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1900 860'%3E%3Cg fill='white' text-anchor='middle' font-family='Bebas%20Neue,Impact,Arial%20Narrow,sans-serif' letter-spacing='10'%3E%3Ctext x='950' y='356' font-size='300'%3EDANDELION%3C/text%3E%3Ctext x='950' y='710' font-size='286'%3EEFFECT%3C/text%3E%3C/g%3E%3C/svg%3E");
+        --intro-outline-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1900 860'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.9' stroke-width='8' stroke-linejoin='round' paint-order='stroke' text-anchor='middle' font-family='Bebas%20Neue,Impact,Arial%20Narrow,sans-serif' letter-spacing='10'%3E%3Ctext x='950' y='356' font-size='300'%3EDANDELION%3C/text%3E%3Ctext x='950' y='710' font-size='286'%3EEFFECT%3C/text%3E%3C/g%3E%3C/svg%3E");
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Space Mono", "Pretendard", "Noto Sans KR",
+          "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .watermark {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(5rem, 17vw, 20rem);
+        color: rgba(255, 255, 255, 0.02);
+        letter-spacing: 0.06em;
+      }
+
+      .topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--header-h);
+        padding: 0 clamp(1rem, 3vw, 2.25rem);
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 20;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        gap: clamp(1.1rem, 2.8vw, 2.7rem);
+        white-space: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav a {
+        position: relative;
+        font-size: clamp(0.86rem, 1.1vw, 1rem);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--fg-soft);
+      }
+
+      .nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -0.25rem;
+        width: 100%;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.85);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.25s ease;
+      }
+
+      .nav a:hover::after,
+      .nav a:focus-visible::after {
+        transform: scaleX(1);
+      }
+
+      main {
+        position: relative;
+        z-index: 1;
+      }
+
+      section {
+        position: relative;
+        scroll-margin-top: calc(var(--header-h) + 14px);
+      }
+
+      #intro {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: calc(var(--header-h) + 3rem) 1.2rem 3rem;
+        overflow: hidden;
+      }
+
+      .intro-copy {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: min(94vw, 980px);
+        margin-inline: auto;
+        text-align: center;
+        isolation: isolate;
+        padding: 0;
+      }
+
+      .intro-copy::before,
+      .intro-copy::after {
+        content: none;
+      }
+
+      .intro-line {
+        margin: 0;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(3.2rem, 15vw, 12rem);
+        letter-spacing: 0.03em;
+        line-height: 0.9;
+        white-space: nowrap;
+        text-transform: uppercase;
+      }
+
+      .intro-line--main,
+      .intro-line--sub {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.99) 0%,
+          rgba(255, 255, 255, 0.9) 52%,
+          rgba(208, 218, 228, 0.78) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.18),
+          0 14px 28px rgba(0, 0, 0, 0.44);
+        filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.28));
+        -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.18);
+      }
+
+      .intro-line--sub {
+        display: inline-block;
+        letter-spacing: 0.03em;
+      }
+
+      .intro-mask-stage {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1900 / 860;
+      }
+
+      .intro-video-mask {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        -webkit-mask-image: var(--intro-mask-svg);
+        -webkit-mask-size: 96% 96%;
+        -webkit-mask-position: center;
+        -webkit-mask-repeat: no-repeat;
+        mask-image: var(--intro-mask-svg);
+        mask-size: 96% 96%;
+        mask-position: center;
+        mask-repeat: no-repeat;
+        mask-mode: luminance;
+      }
+
+      .intro-video-fill {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1.04);
+        filter: brightness(1.24) contrast(1.18) saturate(1.1);
+      }
+
+      .intro-video-mask::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          106deg,
+          rgba(255, 255, 255, 0.56) 0%,
+          rgba(255, 255, 255, 0.14) 35%,
+          rgba(255, 255, 255, 0) 72%
+        );
+        mix-blend-mode: screen;
+        opacity: 0.32;
+      }
+
+      .intro-outline-svg {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: var(--intro-outline-svg);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 96% 96%;
+        filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.35));
+      }
+
+      .intro-fallback {
+        display: none;
+        justify-items: center;
+      }
+
+      .intro-copy.is-mask-fallback .intro-mask-stage {
+        display: none;
+      }
+
+      .intro-copy.is-mask-fallback .intro-fallback {
+        display: grid;
+      }
+
+      #home {
+        min-height: 92vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: clamp(4.5rem, 10vh, 7rem) 1.2rem 3rem;
+        overflow: hidden;
+        background: radial-gradient(
+            circle at 20% 10%,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0) 50%
+          ),
+          linear-gradient(180deg, rgba(12, 12, 12, 0.95), rgba(5, 5, 5, 1));
+      }
+
+      .hero-video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -3;
+      }
+
+      .hero-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background: linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.75) 0%,
+            rgba(0, 0, 0, 0.48) 35%,
+            rgba(0, 0, 0, 0.72) 100%
+          ),
+          radial-gradient(
+            circle at 50% 45%,
+            rgba(0, 0, 0, 0.06),
+            rgba(0, 0, 0, 0.6) 75%
+          );
+      }
+
+      .hero-outline {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .hero-outline span {
+        position: absolute;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(2.5rem, 14vw, 10rem);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+        opacity: 0.16;
+      }
+
+      .hero-outline span:first-child {
+        transform: translate(-17vw, -11vh);
+      }
+
+      .hero-outline span:last-child {
+        transform: translate(18vw, 13vh);
+      }
+
+      .hero-copy {
+        max-width: min(92vw, 980px);
+      }
+
+      .hero-copy h1 {
+        margin: 0;
+        line-height: 1.1;
+        font-family: "Playfair Display", "Pretendard", "Noto Sans KR",
+          "Apple SD Gothic Neo", sans-serif;
+        font-size: clamp(2rem, 5.3vw, 4.6rem);
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+
+      .hero-copy h1 span {
+        display: block;
+        white-space: nowrap;
+      }
+
+      .hero-sub {
+        margin-top: 1.25rem;
+        color: var(--fg-faint);
+        letter-spacing: 0.14em;
+        font-size: clamp(0.66rem, 1.2vw, 0.82rem);
+        text-transform: uppercase;
+      }
+
+      #about {
+        min-height: 88vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: clamp(4rem, 11vh, 7rem) 1.4rem;
+        overflow: hidden;
+      }
+
+      .about-inner {
+        position: relative;
+        z-index: 2;
+        max-width: 920px;
+      }
+
+      .about-dandelion-field {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .about-dandelion-seed {
+        position: absolute;
+        left: var(--seed-x, 50%);
+        top: var(--seed-y, 50%);
+        width: var(--seed-size, 18px);
+        height: calc(var(--seed-size, 18px) * 1.8);
+        transform-origin: 50% 75%;
+        animation: about-seed-drift var(--seed-duration, 14s) ease-in-out var(--seed-delay, 0s) infinite alternate;
+        will-change: transform, opacity;
+      }
+
+      .about-dandelion-seed.is-white {
+        color: rgba(255, 255, 255, 0.62);
+      }
+
+      .about-dandelion-seed.is-yellow {
+        color: rgba(255, 210, 77, 0.66);
+      }
+
+      .about-dandelion-seed::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 0;
+        width: var(--seed-size, 18px);
+        height: var(--seed-size, 18px);
+        transform: translateX(-50%);
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        box-shadow:
+          0 calc(var(--seed-size, 18px) * -0.45) 0 -1px currentColor,
+          calc(var(--seed-size, 18px) * 0.34) calc(var(--seed-size, 18px) * -0.29) 0 -1px currentColor,
+          calc(var(--seed-size, 18px) * 0.45) 0 0 -1px currentColor,
+          calc(var(--seed-size, 18px) * 0.34) calc(var(--seed-size, 18px) * 0.29) 0 -1px currentColor,
+          0 calc(var(--seed-size, 18px) * 0.45) 0 -1px currentColor,
+          calc(var(--seed-size, 18px) * -0.34) calc(var(--seed-size, 18px) * 0.29) 0 -1px currentColor,
+          calc(var(--seed-size, 18px) * -0.45) 0 0 -1px currentColor,
+          calc(var(--seed-size, 18px) * -0.34) calc(var(--seed-size, 18px) * -0.29) 0 -1px currentColor;
+        opacity: 0.72;
+      }
+
+      .about-dandelion-seed::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: calc(var(--seed-size, 18px) * 0.78);
+        width: 1px;
+        height: calc(var(--seed-size, 18px) * 1.05);
+        background: linear-gradient(to bottom, currentColor, transparent);
+        transform: translateX(-50%) rotate(var(--seed-tilt, 8deg));
+        opacity: 0.88;
+      }
+
+      @keyframes about-seed-drift {
+        0% {
+          transform: translate3d(0, 0, 0) rotate(0deg);
+          opacity: 0.14;
+        }
+        42% {
+          opacity: 0.5;
+        }
+        100% {
+          transform: translate3d(var(--drift-x, 34px), var(--drift-y, -54px), 0)
+            rotate(var(--seed-spin, 74deg));
+          opacity: 0.16;
+        }
+      }
+
+      .about-line {
+        margin: 0 auto;
+        display: grid;
+        justify-items: center;
+        gap: 0.08em;
+        width: 100%;
+        text-align: center;
+        line-height: 1.22;
+        font-family: "Playfair Display", "Pretendard", "Noto Sans KR",
+          "Apple SD Gothic Neo", sans-serif;
+        font-size: clamp(1.7rem, 5vw, 4.2rem);
+        letter-spacing: -0.02em;
+      }
+
+      .rotate-slot {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        text-align: center;
+        min-height: 1.15em;
+      }
+
+      .rotate-word {
+        display: inline-block;
+        white-space: nowrap;
+        opacity: 1;
+        transition: opacity 0.26s ease;
+      }
+
+      .rotate-word.is-switching {
+        opacity: 0;
+      }
+
+      .about-purpose {
+        font-weight: 700;
+      }
+
+      .about-statement {
+        margin-top: clamp(1.25rem, 3.7vw, 2.2rem);
+        display: grid;
+        justify-items: center;
+        text-align: center;
+        gap: 0.12em;
+        font-size: clamp(1.3rem, 2.86vw, 2rem);
+        color: var(--fg-soft);
+        line-height: 1.55;
+        opacity: 0;
+        transform: translateY(26px);
+        transition: transform 0.6s ease, opacity 0.6s ease;
+      }
+
+      .bep-emphasis {
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      #portfolio {
+        padding: clamp(4rem, 9vw, 6rem) 0;
+      }
+
+      .portfolio-title {
+        margin: 0 0 1.25rem;
+        padding: 0 clamp(1.2rem, 5vw, 3rem);
+        font-family: "Bebas Neue", sans-serif;
+        text-transform: lowercase;
+        letter-spacing: 0.06em;
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        opacity: 0;
+        transform: translateY(28px);
+        transition: transform 0.6s ease, opacity 0.6s ease;
+      }
+
+      .marquee {
+        width: 100%;
+        overflow: hidden;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .marquee-track {
+        width: max-content;
+        display: flex;
+        align-items: stretch;
+        gap: 1rem;
+        padding: 1rem;
+        animation: marquee-left 38s linear infinite;
+        will-change: transform;
+      }
+
+      .marquee:hover .marquee-track {
+        animation-play-state: paused;
+      }
+
+      .portfolio-item {
+        width: clamp(180px, 19vw, 290px);
+        aspect-ratio: 1 / 1;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: rgba(255, 255, 255, 0.02);
+        flex: 0 0 auto;
+        overflow: hidden;
+        transition: border-color 0.3s ease;
+      }
+
+      .portfolio-item-link {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        color: inherit;
+      }
+
+      .portfolio-media {
+        width: 100%;
+        height: 100%;
+      }
+
+      .portfolio-item img,
+      .portfolio-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        opacity: 0.86;
+        filter: grayscale(100%);
+        transform: scale(1.02);
+        transition: filter 0.38s ease, transform 0.38s ease, opacity 0.38s ease;
+      }
+
+      .portfolio-caption {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 0.7rem 0.75rem;
+        font-size: clamp(0.72rem, 1vw, 0.85rem);
+        letter-spacing: 0.06em;
+        color: rgba(255, 255, 255, 0.95);
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.78) 100%);
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        text-transform: uppercase;
+      }
+
+      .portfolio-item.is-center {
+        border-color: rgba(255, 255, 255, 0.62);
+      }
+
+      .portfolio-item.is-center img,
+      .portfolio-item.is-center video {
+        opacity: 1;
+        filter: grayscale(0%);
+        transform: scale(1.06);
+      }
+
+      .portfolio-item.is-center .portfolio-caption {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      #contact {
+        min-height: 82vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: clamp(4.2rem, 12vh, 8rem) 1.2rem 2rem;
+      }
+
+      .contact-wrap {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: transform 0.6s ease, opacity 0.6s ease;
+      }
+
+      .contact-kor {
+        margin: 0;
+        font-size: clamp(1.35rem, 3.1vw, 2.3rem);
+        letter-spacing: -0.01em;
+      }
+
+      .contact-en {
+        margin: 1rem 0 0;
+        line-height: 0.95;
+        font-size: clamp(3rem, 14vw, 10rem);
+        font-family: "Bebas Neue", sans-serif;
+        letter-spacing: 0.02em;
+        text-transform: none;
+      }
+
+      .contact-en span {
+        display: block;
+      }
+
+      .contact-en .accent {
+        color: var(--accent);
+      }
+
+      .contact-cta {
+        display: inline-block;
+        margin-top: 1.5rem;
+        font-size: clamp(0.86rem, 1.9vw, 1rem);
+        letter-spacing: 0.08em;
+        color: var(--fg);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.48);
+        padding-bottom: 3px;
+      }
+
+      .footer-note {
+        margin-top: 2.6rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.09em;
+        color: var(--fg-faint);
+        text-transform: uppercase;
+      }
+
+      #inquiry {
+        position: relative;
+        min-height: clamp(560px, 82vh, 860px);
+        display: grid;
+        place-items: center;
+        padding: clamp(3rem, 8vh, 5rem) 1.2rem;
+        overflow: hidden;
+        isolation: isolate;
+        background: #050505;
+      }
+
+      .inquiry-video-bg {
+        position: absolute;
+        inset: 0;
+        z-index: -3;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.6) saturate(1.04);
+      }
+
+      .inquiry-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.74) 0%,
+            rgba(0, 0, 0, 0.58) 42%,
+            rgba(0, 0, 0, 0.78) 100%
+          ),
+          radial-gradient(
+            circle at 52% 38%,
+            rgba(255, 210, 77, 0.11) 0%,
+            rgba(0, 0, 0, 0.02) 34%,
+            rgba(0, 0, 0, 0.55) 78%
+          );
+      }
+
+      .inquiry-shell {
+        position: relative;
+        z-index: 1;
+        width: min(780px, 92vw);
+        margin: 0 auto;
+        padding: clamp(1.1rem, 3.5vw, 1.6rem);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: linear-gradient(
+          132deg,
+          rgba(255, 255, 255, 0.04) 0%,
+          rgba(255, 255, 255, 0.01) 34%,
+          rgba(0, 0, 0, 0.32) 100%
+        );
+        box-shadow: 0 16px 44px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+      }
+
+      .inquiry-shell.reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: transform 0.6s ease, opacity 0.6s ease;
+      }
+
+      .inquiry-title {
+        margin: 0;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(2rem, 6vw, 3.4rem);
+        letter-spacing: 0.06em;
+      }
+
+      .inquiry-subtitle {
+        margin: 0.2rem 0 0;
+        color: var(--fg-soft);
+        font-size: 0.92rem;
+        line-height: 1.6;
+      }
+
+      .inquiry-info {
+        margin-top: 0.4rem;
+        color: var(--fg-faint);
+        font-size: 0.82rem;
+        line-height: 1.6;
+      }
+
+      .inquiry-notice,
+      .inquiry-error {
+        margin-top: 0.9rem;
+        border-radius: 10px;
+        padding: 0.58rem 0.72rem;
+        font-size: 0.85rem;
+      }
+
+      .inquiry-notice {
+        border: 1px solid rgba(255, 210, 77, 0.45);
+        color: #ffefbe;
+        background: rgba(255, 210, 77, 0.08);
+      }
+
+      .inquiry-error {
+        border: 1px solid rgba(255, 125, 125, 0.4);
+        color: #ffb3b3;
+        background: rgba(255, 125, 125, 0.08);
+      }
+
+      .inquiry-form {
+        display: grid;
+        gap: 0.92rem;
+        margin-top: 0.95rem;
+      }
+
+      .inquiry-row {
+        display: grid;
+        gap: 0.44rem;
+      }
+
+      .inquiry-row label {
+        font-size: 0.82rem;
+        color: var(--fg-soft);
+      }
+
+      .inquiry-row input,
+      .inquiry-row textarea {
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 10px;
+        background: rgba(6, 6, 6, 0.9);
+        color: var(--fg);
+        padding: 0.72rem 0.82rem;
+        font: inherit;
+      }
+
+      .inquiry-row textarea {
+        min-height: 130px;
+        resize: vertical;
+      }
+
+      .inquiry-consent {
+        display: flex;
+        gap: 0.55rem;
+        align-items: flex-start;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        padding: 0.65rem 0.72rem;
+        color: var(--fg-soft);
+        font-size: 0.82rem;
+        line-height: 1.5;
+      }
+
+      .inquiry-consent input[type="checkbox"] {
+        margin-top: 0.2rem;
+      }
+
+      .inquiry-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 210, 77, 0.7);
+        background: rgba(255, 210, 77, 0.08);
+        color: #ffe6a5;
+        border-radius: 10px;
+        padding: 0.62rem 0.98rem;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @keyframes marquee-left {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .topbar {
+          grid-template-columns: 1fr;
+          gap: 0;
+          height: 60px;
+          padding-inline: 0.5rem;
+        }
+
+        .nav {
+          gap: 0.75rem;
+          min-width: 0;
+          justify-content: center;
+          overflow-x: auto;
+          padding-inline: 0.35rem;
+        }
+
+        .nav a {
+          font-size: 0.74rem;
+          letter-spacing: 0.09em;
+        }
+
+        #intro {
+          padding-top: calc(var(--header-h) + 2.4rem);
+        }
+
+        #home {
+          padding-top: clamp(4rem, 8vh, 5rem);
+        }
+
+        .hero-copy h1 {
+          font-size: clamp(1.65rem, 8vw, 3.2rem);
+        }
+
+        .marquee {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+        }
+
+        .marquee-track {
+          animation-duration: 54s;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .nav {
+          gap: 0.56rem;
+        }
+
+        .nav a {
+          font-size: 0.74rem;
+          letter-spacing: 0.05em;
+        }
+
+        .intro-outline-svg {
+          filter: drop-shadow(0 1px 7px rgba(0, 0, 0, 0.3));
+        }
+
+        .inquiry-shell {
+          border-radius: 12px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+
+        .marquee-track {
+          animation: none !important;
+          transform: translateX(0) !important;
+        }
+
+        .inquiry-video-bg {
+          display: none;
+        }
+
+        .rotate-word {
+          transition: none;
+        }
+
+        .intro-mask-stage {
+          display: none;
+        }
+
+        .intro-fallback {
+          display: grid;
+          justify-items: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="watermark" aria-hidden="true">Dandelion</div>
+
+    <header class="topbar" aria-label="메인 내비게이션">
+      <nav class="nav">
+        <a href="/">HOME</a>
+        <a href="/about">ABOUT</a>
+        <a href="/portfolio">PORTFOLIO</a>
+        <a href="/service">SERVICE</a>
+        <a href="/contact">CONTACT</a>
+      </nav>
+    </header>
+
+    <main>
+      <section id="intro" aria-label="인트로 섹션">
+        <video class="hero-video" autoplay muted loop playsinline>
+          <source src="/assets/grok-video-da95822f-0b95-4d81-9a37-82bd7a21a593.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <div id="introCopy" class="intro-copy" aria-label="Dandelion Effect">
+          <div class="intro-mask-stage" aria-hidden="true">
+            <div class="intro-video-mask">
+              <video class="intro-video-fill" autoplay muted loop playsinline>
+                <source src="/assets/grok-video-da95822f-0b95-4d81-9a37-82bd7a21a593.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div class="intro-outline-svg"></div>
+          </div>
+          <div class="intro-fallback" aria-hidden="true">
+            <p class="intro-line intro-line--main">Dandelion</p>
+            <p class="intro-line intro-line--sub">Effect</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="home" aria-label="히어로 섹션">
+        <div class="hero-outline" aria-hidden="true">
+          <span>RETURN</span>
+          <span>OPERATE</span>
+        </div>
+
+        <div class="hero-copy">
+          <h1>
+            <span>광고비는 계속 쓰는데</span>
+            <span>남는 건 없나요?</span>
+          </h1>
+          <p class="hero-sub">민들레효과 | 통합 운영</p>
+        </div>
+      </section>
+
+      <section id="about" aria-label="운영 철학">
+        <div class="about-dandelion-field" data-dandelion-field aria-hidden="true"></div>
+        <div class="about-inner">
+          <p class="about-line">
+            <span class="rotate-slot"><span id="rotateWord" class="rotate-word">노출은</span></span>
+            <span class="about-purpose">목적이 아닙니다.</span>
+          </p>
+          <div id="aboutStatement" class="about-statement reveal">
+            <div>보여주기 위한 마케팅이 아니라</div>
+            <div><span class="bep-emphasis">BEP</span>를 넘기는 운영을 합니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="portfolio" aria-label="포트폴리오">
+        <h2 id="portfolioTitle" class="portfolio-title reveal">portfolio</h2>
+        <%
+          const fallbackPortfolio = [
+            "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=1200&q=80",
+          ];
+          const sourcePortfolio = portfolioItems && portfolioItems.length
+            ? portfolioItems
+            : fallbackPortfolio.map((src, idx) => ({
+                id: `fallback-${idx}`,
+                title: `Portfolio ${idx + 1}`,
+                slug: null,
+                thumbnail_path: src,
+              }));
+          const marqueePortfolio = sourcePortfolio.concat(sourcePortfolio);
+        %>
+        <div class="marquee" aria-label="포트폴리오 슬라이더">
+          <div class="marquee-track" id="marqueeTrack">
+            <% marqueePortfolio.forEach((item, idx) => { %>
+              <% const mediaSrc = item.thumbnail_path || fallbackPortfolio[idx % fallbackPortfolio.length]; %>
+              <% const isVideo = /\.(mp4|webm|ogg)$/i.test(mediaSrc || ""); %>
+              <article class="portfolio-item<%= idx === 0 ? ' is-center' : '' %>" <% if (idx >= sourcePortfolio.length) { %>aria-hidden="true"<% } %>>
+                <% if (item.slug) { %>
+                  <a class="portfolio-item-link" href="/portfolio/<%= item.slug %>">
+                <% } else { %>
+                  <div class="portfolio-item-link">
+                <% } %>
+                  <div class="portfolio-media">
+                    <% if (isVideo) { %>
+                      <video muted loop autoplay playsinline preload="metadata">
+                        <source src="<%= mediaSrc %>" />
+                      </video>
+                    <% } else { %>
+                      <img src="<%= mediaSrc %>" alt="<%= idx >= sourcePortfolio.length ? '' : item.title %>" />
+                    <% } %>
+                  </div>
+                  <div class="portfolio-caption"><%= item.title %></div>
+                <% if (item.slug) { %>
+                  </a>
+                <% } else { %>
+                  </div>
+                <% } %>
+              </article>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" aria-label="문의">
+        <div id="contactWrap" class="contact-wrap reveal">
+          <p class="contact-kor">민들레는 남는 구조를 만듭니다.</p>
+          <p class="contact-en">
+            <span>Beyond the</span>
+            <span class="accent">Best</span>
+          </p>
+          <a class="contact-cta" href="/contact">30분 전략상담 신청</a>
+          <div class="footer-note">주식회사 민들레효과 · Performance Operating Partner</div>
+        </div>
+      </section>
+
+      <section id="inquiry" aria-label="문의 폼">
+        <video class="inquiry-video-bg" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+          <source src="/assets/grok-video-b96cfa5e-44d8-46ff-bacb-a03335d9f287.mp4" type="video/mp4" />
+        </video>
+        <div class="inquiry-overlay" aria-hidden="true"></div>
+
+        <div id="inquiryShell" class="inquiry-shell reveal">
+          <h2 class="inquiry-title">Inquiry</h2>
+          <p class="inquiry-subtitle">이름, 전화번호, 업체명, 문의사항을 남겨주시면 운영 관점으로 빠르게 답변드립니다.</p>
+          <p class="inquiry-info">
+            수집 정보는 상담 목적으로만 이용되며 접수일 기준 <strong><%= inquiryRetentionDays %>일</strong> 보관 후 파기됩니다.
+          </p>
+
+          <% if (notice) { %>
+            <div class="inquiry-notice"><%= notice %></div>
+          <% } %>
+          <% if (formError) { %>
+            <div class="inquiry-error"><%= formError %></div>
+          <% } %>
+
+          <form class="inquiry-form" method="post" action="/contact">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input type="hidden" name="redirectTo" value="/#inquiry" />
+
+            <div class="inquiry-row">
+              <label for="homeInquiryName">이름</label>
+              <input id="homeInquiryName" name="name" required maxlength="60" />
+            </div>
+
+            <div class="inquiry-row">
+              <label for="homeInquiryPhone">전화번호</label>
+              <input id="homeInquiryPhone" name="phone" required maxlength="40" />
+            </div>
+
+            <div class="inquiry-row">
+              <label for="homeInquiryCompany">업체명</label>
+              <input id="homeInquiryCompany" name="company" required maxlength="120" />
+            </div>
+
+            <div class="inquiry-row">
+              <label for="homeInquiryMessage">문의사항</label>
+              <textarea id="homeInquiryMessage" name="message" required maxlength="4000"></textarea>
+            </div>
+
+            <div class="inquiry-row">
+              <label for="homeInquiryPolicy">개인정보 수집 및 이용 안내</label>
+              <textarea id="homeInquiryPolicy" readonly style="min-height: 130px; color: var(--fg-faint);"><%= privacyPolicyText %></textarea>
+            </div>
+
+            <label class="inquiry-consent">
+              <input type="checkbox" name="consent" value="true" required />
+              <span>개인정보 수집 및 이용에 동의합니다. (필수)</span>
+            </label>
+
+            <div>
+              <button class="inquiry-submit" type="submit">문의 접수</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        const dandelionFields = Array.from(document.querySelectorAll("[data-dandelion-field]"));
+        if (dandelionFields.length) {
+          const totalSeeds = prefersReducedMotion ? 20 : 56;
+          const whiteCount = Math.round(totalSeeds * 0.75);
+          const yellowCount = totalSeeds - whiteCount;
+          const rand = (min, max) => Math.random() * (max - min) + min;
+
+          dandelionFields.forEach((field) => {
+            const colorPool = [
+              ...Array.from({ length: whiteCount }, () => "is-white"),
+              ...Array.from({ length: yellowCount }, () => "is-yellow"),
+            ];
+
+            for (let i = colorPool.length - 1; i > 0; i -= 1) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [colorPool[i], colorPool[j]] = [colorPool[j], colorPool[i]];
+            }
+
+            field.replaceChildren();
+            colorPool.forEach((toneClass) => {
+              const seed = document.createElement("span");
+              seed.className = `about-dandelion-seed ${toneClass}`;
+              seed.style.setProperty("--seed-size", `${rand(9, 22).toFixed(2)}px`);
+              seed.style.setProperty("--seed-x", `${rand(-8, 104).toFixed(2)}%`);
+              seed.style.setProperty("--seed-y", `${rand(-6, 102).toFixed(2)}%`);
+              seed.style.setProperty("--drift-x", `${rand(-110, 110).toFixed(1)}px`);
+              seed.style.setProperty("--drift-y", `${rand(-140, 96).toFixed(1)}px`);
+              seed.style.setProperty("--seed-spin", `${rand(-150, 150).toFixed(1)}deg`);
+              seed.style.setProperty("--seed-tilt", `${rand(-22, 22).toFixed(1)}deg`);
+              seed.style.setProperty("--seed-duration", `${rand(10, 24).toFixed(2)}s`);
+              seed.style.setProperty("--seed-delay", `${rand(-24, 0).toFixed(2)}s`);
+              field.appendChild(seed);
+            });
+          });
+        }
+
+        const introCopy = document.getElementById("introCopy");
+
+        if (introCopy) {
+          const supportsMask =
+            !!window.CSS &&
+            (CSS.supports("-webkit-mask-image", "url('data:image/svg+xml;utf8,<svg></svg>')") ||
+              CSS.supports("mask-image", "url('data:image/svg+xml;utf8,<svg></svg>')"));
+
+          if (prefersReducedMotion || !supportsMask) {
+            introCopy.classList.add("is-mask-fallback");
+          }
+        }
+
+        const aboutStatement = document.getElementById("aboutStatement");
+        const portfolioTitle = document.getElementById("portfolioTitle");
+        const contactWrap = document.getElementById("contactWrap");
+        const inquiryShell = document.getElementById("inquiryShell");
+        const revealTargets = [aboutStatement, portfolioTitle, contactWrap, inquiryShell].filter(Boolean);
+
+        if ("IntersectionObserver" in window) {
+          const observer = new IntersectionObserver(
+            (entries, obs) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("is-visible");
+                  obs.unobserve(entry.target);
+                }
+              });
+            },
+            { threshold: 0.18 }
+          );
+          revealTargets.forEach((el) => observer.observe(el));
+        } else {
+          revealTargets.forEach((el) => el.classList.add("is-visible"));
+        }
+
+        const rotateWordEl = document.getElementById("rotateWord");
+        const marqueeTrackEl = document.getElementById("marqueeTrack");
+        const words = ["노출은", "조회수는", "팔로워 수는"];
+        let idx = 0;
+
+        if (rotateWordEl) {
+          if (prefersReducedMotion) {
+            rotateWordEl.textContent = "노출은";
+          } else {
+            setInterval(() => {
+              rotateWordEl.classList.add("is-switching");
+              setTimeout(() => {
+                idx = (idx + 1) % words.length;
+                rotateWordEl.textContent = words[idx];
+                rotateWordEl.classList.remove("is-switching");
+              }, 220);
+            }, 1000);
+          }
+        }
+
+        const syncCenterPortfolio = () => {
+          if (!marqueeTrackEl) return;
+          const items = Array.from(marqueeTrackEl.querySelectorAll(".portfolio-item"));
+          if (!items.length) return;
+
+          const viewportCenter = window.innerWidth / 2;
+          let closestItem = null;
+          let closestDistance = Number.POSITIVE_INFINITY;
+
+          items.forEach((item) => {
+            const rect = item.getBoundingClientRect();
+            const itemCenter = rect.left + rect.width / 2;
+            const distance = Math.abs(itemCenter - viewportCenter);
+            if (distance < closestDistance) {
+              closestDistance = distance;
+              closestItem = item;
+            }
+            item.classList.remove("is-center");
+          });
+
+          if (closestItem) {
+            closestItem.classList.add("is-center");
+          }
+        };
+
+        syncCenterPortfolio();
+        setInterval(syncCenterPortfolio, 120);
+        window.addEventListener("resize", syncCenterPortfolio);
+      })();
+    </script>
+  </body>
+</html>
