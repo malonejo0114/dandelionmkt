@@ -28,11 +28,6 @@ const TenantService = require('./application/tenant/tenantService');
 const TelegramChannel = require('./infrastructure/notifications/telegramChannel');
 const TwilioSmsChannel = require('./infrastructure/notifications/twilioSmsChannel');
 
-const PublicController = require('./interfaces/http/controllers/publicController');
-const AdminController = require('./interfaces/http/controllers/adminController');
-const buildPublicRoutes = require('./interfaces/http/routes/publicRoutes');
-const buildAdminRoutes = require('./interfaces/http/routes/adminRoutes');
-
 const PORT = Number(process.env.PORT || 8787);
 let appBundlePromise = null;
 
@@ -94,6 +89,13 @@ async function createInfrastructure() {
 
 async function createApp() {
   const infra = await createInfrastructure();
+
+  // Lazy-load controllers/routes after backend mode is resolved.
+  // This avoids hard-crash at module load on serverless when env vars are missing.
+  const PublicController = require('./interfaces/http/controllers/publicController');
+  const AdminController = require('./interfaces/http/controllers/adminController');
+  const buildPublicRoutes = require('./interfaces/http/routes/publicRoutes');
+  const buildAdminRoutes = require('./interfaces/http/routes/adminRoutes');
 
   const tenantService = new TenantService(infra.tenantRepository);
   const contentService = new ContentService(
