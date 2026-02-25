@@ -9,6 +9,11 @@ function assertEnv(env = process.env) {
   if (!url || !serviceRoleKey) {
     throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for Supabase mode.');
   }
+  if (serviceRoleKey.startsWith('sb_publishable_')) {
+    throw new Error(
+      'SUPABASE_SERVICE_ROLE_KEY must be a secret key (sb_secret_... or legacy service_role), not sb_publishable_.'
+    );
+  }
 
   return { url, serviceRoleKey };
 }

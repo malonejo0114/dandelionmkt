@@ -64,6 +64,12 @@ async function createInfrastructure() {
     };
   }
 
+  if (process.env.VERCEL === '1') {
+    throw new Error(
+      'Vercel deployment requires Supabase mode. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel env vars.'
+    );
+  }
+
   const { initSchema, dbPath } = require('./config/database');
   const SqliteContentRepository = require('./infrastructure/repositories/sqliteContentRepository');
   const SqliteMediaRepository = require('./infrastructure/repositories/sqliteMediaRepository');
