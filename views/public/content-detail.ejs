@@ -2,18 +2,29 @@
 
 <main class="page">
   <article class="detail-wrap">
-    <h1 class="detail-title"><%= item.title %></h1>
-    <p class="detail-meta"><%= type %> · <%= item.created_at %></p>
+    <header class="detail-hero">
+      <p class="detail-kicker"><%= type === 'portfolio' ? 'Case Detail' : 'Service Detail' %></p>
+      <h1 class="detail-title"><%= item.title %></h1>
+      <p class="detail-meta"><%= type %> · <%= item.created_at %></p>
+      <% if (item.summary) { %>
+        <p class="detail-summary"><%= item.summary %></p>
+      <% } %>
+    </header>
 
     <% if (item.thumbnail_path) { %>
       <div class="detail-thumb">
-        <img src="<%= item.thumbnail_path %>" alt="<%= item.title %>" />
+        <% const thumbIsVideo = /\.(mp4|webm|ogg)$/i.test(item.thumbnail_path || ''); %>
+        <% if (thumbIsVideo) { %>
+          <video controls playsinline preload="metadata" src="<%= item.thumbnail_path %>"></video>
+        <% } else { %>
+          <img src="<%= item.thumbnail_path %>" alt="<%= item.title %>" />
+        <% } %>
       </div>
     <% } %>
 
     <% const hasBlocks = item.blocks && item.blocks.length > 0; %>
     <% if (hasBlocks) { %>
-      <section class="content-blocks">
+      <section class="content-blocks detail-panel">
         <% item.blocks.forEach((block) => { %>
           <% if (block.block_type === 'text') { %>
             <p class="content-block text"><%= block.content_text %></p>
@@ -37,7 +48,7 @@
         <% }) %>
       </section>
     <% } else { %>
-      <div class="detail-body"><%= item.body || '등록된 상세 설명이 없습니다.' %></div>
+      <div class="detail-body detail-panel"><%= item.body || '등록된 상세 설명이 없습니다.' %></div>
     <% } %>
 
     <% const usedAssetIds = new Set((item.blocks || []).map((row) => Number(row.media_asset_id)).filter((id) => id > 0)); %>

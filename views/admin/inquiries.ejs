@@ -1,8 +1,11 @@
 <%- include('../partials/admin-header') %>
 
 <main class="admin-shell">
-  <div class="admin-top-actions">
-    <h1 class="section-title" style="margin-bottom: 0;">문의함</h1>
+  <div class="admin-top-actions admin-page-head">
+    <div>
+      <p class="admin-kicker">Inquiry Inbox</p>
+      <h1 class="section-title" style="margin-bottom: 0;">문의함</h1>
+    </div>
     <div class="inline-actions">
       <a class="btn ghost" href="/admin/inquiries/logs">감사 로그</a>
       <form method="post" action="/admin/inquiries/purge" style="margin: 0;">

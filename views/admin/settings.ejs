@@ -1,13 +1,16 @@
 <%- include('../partials/admin-header') %>
 
 <main class="admin-shell">
-  <h1 class="section-title" style="margin-bottom: 1rem;">Settings</h1>
+  <section class="admin-page-head">
+    <p class="admin-kicker">Tenant Configuration</p>
+    <h1 class="section-title" style="margin-bottom: 0;">Settings</h1>
+  </section>
 
   <% if (error) { %>
     <div class="error-msg"><%= error %></div>
   <% } %>
 
-  <section class="table-wrap" style="margin-bottom: 1.2rem;">
+  <section class="table-wrap admin-panel" style="margin-bottom: 1.2rem;">
     <table>
       <tbody>
         <tr>
@@ -26,7 +29,7 @@
     </table>
   </section>
 
-  <section style="margin-bottom: 1.5rem;">
+  <section class="admin-panel" style="margin-bottom: 1.5rem;">
     <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">비밀번호 변경</h2>
     <form class="form-grid" method="post" action="/admin/settings/password">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -44,7 +47,7 @@
     </form>
   </section>
 
-  <section style="margin-bottom: 1.5rem;">
+  <section class="admin-panel" style="margin-bottom: 1.5rem;">
     <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">2단계 인증 (TOTP)</h2>
 
     <% if (Number(admin.twofa_enabled) === 1) { %>
@@ -71,7 +74,7 @@
     <% } %>
   </section>
 
-  <section style="margin-bottom: 1.5rem;">
+  <section class="admin-panel" style="margin-bottom: 1.5rem;">
     <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">Tenant 설정</h2>
     <form class="form-grid" method="post" action="/admin/settings/tenant">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -100,7 +103,7 @@
     </form>
   </section>
 
-  <section>
+  <section class="admin-panel">
     <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">새 Tenant 생성</h2>
     <form class="form-grid" method="post" action="/admin/settings/tenant/create">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -144,7 +147,7 @@
     </form>
   </section>
 
-  <section style="margin-top: 1.8rem;">
+  <section class="admin-panel" style="margin-top: 1.8rem;">
     <h2 style="margin: 0 0 0.8rem; font-size: 1rem;">Tenant 목록</h2>
     <div class="table-wrap">
       <table>

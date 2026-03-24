@@ -1,9 +1,12 @@
 <%- include('../partials/admin-header') %>
 
 <main class="admin-shell">
-  <h1 class="section-title" style="margin-bottom: 1rem;">문의 상세 #<%= item.id %></h1>
+  <section class="admin-page-head">
+    <p class="admin-kicker">Inquiry Detail</p>
+    <h1 class="section-title" style="margin-bottom: 0;">문의 상세 #<%= item.id %></h1>
+  </section>
 
-  <section class="table-wrap">
+  <section class="table-wrap admin-panel">
     <table>
       <tbody>
         <tr>
@@ -66,7 +69,7 @@
     <a class="btn ghost" href="/admin/inquiries">목록</a>
   </form>
 
-  <section class="table-wrap" style="margin-top: 1rem;">
+  <section class="table-wrap admin-panel" style="margin-top: 1rem;">
     <table>
       <thead>
         <tr>

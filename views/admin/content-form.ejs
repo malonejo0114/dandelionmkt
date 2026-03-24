@@ -1,16 +1,19 @@
 <%- include('../partials/admin-header') %>
 
 <main class="admin-shell">
-  <h1 class="section-title" style="margin-bottom: 1rem;">
-    <%= mode === 'create' ? (type === 'portfolio' ? '포트폴리오 추가' : '서비스 추가') : '콘텐츠 수정' %>
-  </h1>
+  <section class="admin-page-head">
+    <p class="admin-kicker"><%= mode === 'create' ? 'Create Content' : 'Edit Content' %></p>
+    <h1 class="section-title" style="margin-bottom: 0;">
+      <%= mode === 'create' ? (type === 'portfolio' ? '포트폴리오 추가' : '서비스 추가') : '콘텐츠 수정' %>
+    </h1>
+  </section>
 
   <% if (error) { %>
     <div class="error-msg"><%= error %></div>
   <% } %>
 
   <form
-    class="form-grid"
+    class="form-grid admin-panel"
     method="post"
     enctype="multipart/form-data"
     action="<%= mode === 'create'
@@ -70,7 +73,7 @@
   </form>
 
   <% if (mode === 'edit' && item.mediaAssets && item.mediaAssets.length) { %>
-    <section style="margin-top: 1.5rem;">
+    <section class="admin-panel" style="margin-top: 1.5rem;">
       <h2 style="font-size: 1rem; margin-bottom: 0.8rem;">첨부 파일</h2>
       <div class="table-wrap">
         <table>
