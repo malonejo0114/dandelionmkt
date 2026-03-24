@@ -1,5 +1,13 @@
 const bcrypt = require('bcryptjs');
-const otplib = require('otplib');
+
+let otplibModulePromise = null;
+
+async function getOtplib() {
+  if (!otplibModulePromise) {
+    otplibModulePromise = import('otplib');
+  }
+  return otplibModulePromise;
+}
 
 function passwordPolicyError(password) {
   if (!password || password.length < 10) {
@@ -79,6 +87,7 @@ class AuthService {
         };
       }
 
+      const otplib = await getOtplib();
       const otpResult = await otplib.verify({
         strategy: 'totp',
         secret: admin.twofa_secret,
@@ -132,6 +141,7 @@ class AuthService {
       throw new Error('관리자 정보를 찾을 수 없습니다.');
     }
 
+    const otplib = await getOtplib();
     const secret = otplib.generateSecret(20);
     const otpauth = otplib.generateURI({
       strategy: 'totp',
@@ -144,6 +154,7 @@ class AuthService {
   }
 
   async enableTwoFactor({ tenantId, adminId, secret, otpCode }) {
+    const otplib = await getOtplib();
     const otpResult = await otplib.verify({
       strategy: 'totp',
       secret,

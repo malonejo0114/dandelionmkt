@@ -13,14 +13,13 @@ module.exports = async (req, res) => {
       'And run supabase/schema.sql in Supabase SQL Editor.',
     ].join('\n');
 
-    if (typeof res.status === 'function' && typeof res.send === 'function') {
-      res.status(500).type('text/plain').send(payload);
-      return;
-    }
-
     res.statusCode = 500;
     if (typeof res.setHeader === 'function') {
       res.setHeader('content-type', 'text/plain; charset=utf-8');
+    }
+    if (typeof res.send === 'function') {
+      res.send(payload);
+      return;
     }
     if (typeof res.end === 'function') {
       res.end(payload);
