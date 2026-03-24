@@ -75,9 +75,16 @@ class PublicController {
       blog: 'Blog',
     };
     const detailPath = `/${type}/${item.slug}`;
-    const description =
+    const defaultDescription =
       item.summary || trimText(item.body || '', type === 'blog' ? 155 : 140) || item.title;
-    const image = item.thumbnail_path || null;
+    const description = trimText(
+      item.meta_description || defaultDescription,
+      type === 'blog' ? 155 : 140
+    );
+    const image = item.og_image_path || item.thumbnail_path || null;
+    const seoTitle =
+      trimText(item.meta_title || '', 160) ||
+      `${item.title} | ${typeLabelMap[type] || 'Content'} | 민들레효과`;
 
     let jsonLd = null;
     if (type === 'blog') {
@@ -102,7 +109,7 @@ class PublicController {
     }
 
     return this.buildSeo(req, {
-      title: `${item.title} | ${typeLabelMap[type] || 'Content'} | 민들레효과`,
+      title: seoTitle,
       description,
       path: detailPath,
       image,

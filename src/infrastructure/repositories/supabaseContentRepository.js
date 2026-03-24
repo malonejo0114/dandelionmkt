@@ -80,6 +80,9 @@ class SupabaseContentRepository {
       body: item.body,
       status: item.status,
       thumbnail_path: item.thumbnailPath,
+      meta_title: item.metaTitle,
+      meta_description: item.metaDescription,
+      og_image_path: item.ogImagePath,
       published_at: item.publishedAt,
     };
 
@@ -100,6 +103,9 @@ class SupabaseContentRepository {
       body: item.body,
       status: item.status,
       thumbnail_path: item.thumbnailPath,
+      meta_title: item.metaTitle,
+      meta_description: item.metaDescription,
+      og_image_path: item.ogImagePath,
       published_at: item.publishedAt,
       updated_at: new Date().toISOString(),
     };

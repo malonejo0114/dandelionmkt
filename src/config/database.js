@@ -95,6 +95,9 @@ async function ensureContentItemsSupportBlog() {
         body TEXT,
         status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
         thumbnail_path TEXT,
+        meta_title TEXT,
+        meta_description TEXT,
+        og_image_path TEXT,
         published_at TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -177,6 +180,9 @@ async function initSchema() {
       body TEXT,
       status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
       thumbnail_path TEXT,
+      meta_title TEXT,
+      meta_description TEXT,
+      og_image_path TEXT,
       published_at TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -185,6 +191,9 @@ async function initSchema() {
     )
   `);
   await ensureContentItemsSupportBlog();
+  await ensureColumn('content_items', 'meta_title', 'TEXT');
+  await ensureColumn('content_items', 'meta_description', 'TEXT');
+  await ensureColumn('content_items', 'og_image_path', 'TEXT');
   await ensureColumn('content_items', 'published_at', 'TEXT');
   await run(
     "UPDATE content_items SET published_at = created_at WHERE status = 'published' AND published_at IS NULL"

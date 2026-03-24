@@ -6,6 +6,12 @@ const projectRoot = path.resolve(__dirname, '../../..');
 const ContentItem = require('../../domain/content/contentItem');
 const CONTENT_TYPES = ['portfolio', 'service', 'blog'];
 
+function normalizeOptionalText(value, maxLength) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return '';
+  return normalized.slice(0, maxLength);
+}
+
 class ContentService {
   constructor(contentRepository, mediaRepository, storageService = null) {
     this.contentRepository = contentRepository;
@@ -58,6 +64,9 @@ class ContentService {
     const thumbnailPath = files?.thumbnail?.[0]
       ? await this.uploadThumbnailFile(tenantId, files.thumbnail[0])
       : null;
+    const ogImagePath = files?.og_image?.[0]
+      ? await this.uploadOgImageFile(tenantId, files.og_image[0])
+      : null;
 
     const blocks = await this.normalizeBlocks(tenantId, payload.blocksJson);
     const bodyFallback = this.composeBodyFallback(blocks, payload.body);
@@ -71,6 +80,9 @@ class ContentService {
       body: bodyFallback,
       status: payload.status || 'draft',
       thumbnailPath,
+      metaTitle: normalizeOptionalText(payload.metaTitle, 160),
+      metaDescription: normalizeOptionalText(payload.metaDescription, 500),
+      ogImagePath: ogImagePath || normalizeOptionalText(payload.ogImagePath, 1000) || null,
       publishedAt: this.resolvePublishedAt(null, payload.status || 'draft'),
     });
     item.validate();
@@ -102,6 +114,9 @@ class ContentService {
     const newThumbnailPath = files?.thumbnail?.[0]
       ? await this.uploadThumbnailFile(tenantId, files.thumbnail[0])
       : existing.thumbnail_path;
+    const newOgImagePathFromUpload = files?.og_image?.[0]
+      ? await this.uploadOgImageFile(tenantId, files.og_image[0])
+      : null;
 
     const blocks = await this.normalizeBlocks(tenantId, payload.blocksJson);
     const bodyFallback = this.composeBodyFallback(blocks, payload.body);
@@ -116,6 +131,12 @@ class ContentService {
       body: bodyFallback,
       status: payload.status || 'draft',
       thumbnailPath: newThumbnailPath,
+      metaTitle: normalizeOptionalText(payload.metaTitle, 160),
+      metaDescription: normalizeOptionalText(payload.metaDescription, 500),
+      ogImagePath:
+        newOgImagePathFromUpload ||
+        normalizeOptionalText(payload.ogImagePath, 1000) ||
+        null,
       publishedAt: this.resolvePublishedAt(existing, payload.status || 'draft'),
     });
     item.validate();
@@ -129,8 +150,21 @@ class ContentService {
     await this.contentRepository.replaceBlocks(tenantId, id, blocks);
     await this.syncBlockAssetLinks(id, blocks);
 
-    if (files?.thumbnail?.[0] && existing.thumbnail_path && existing.thumbnail_path !== newThumbnailPath) {
+    if (
+      files?.thumbnail?.[0] &&
+      existing.thumbnail_path &&
+      existing.thumbnail_path !== newThumbnailPath &&
+      existing.thumbnail_path !== item.ogImagePath
+    ) {
       await this.deleteManagedFile(existing.thumbnail_path);
+    }
+
+    if (
+      existing.og_image_path &&
+      existing.og_image_path !== item.ogImagePath &&
+      existing.og_image_path !== item.thumbnailPath
+    ) {
+      await this.deleteManagedFile(existing.og_image_path);
     }
 
     return this.getById(tenantId, id);
@@ -145,8 +179,12 @@ class ContentService {
     const removableAssets = await this.mediaRepository.listByContentOrBlocks(id);
     await this.contentRepository.delete(tenantId, id);
 
-    if (existing.thumbnail_path) {
-      await this.deleteManagedFile(existing.thumbnail_path);
+    const removablePaths = new Set(
+      [existing.thumbnail_path, existing.og_image_path].filter(Boolean)
+    );
+    for (const removablePath of removablePaths) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.deleteManagedFile(removablePath);
     }
 
     for (const asset of removableAssets) {
@@ -333,9 +371,15 @@ class ContentService {
       return await action();
     } catch (err) {
       const message = String(err?.message || '');
-      if (message.includes('published_at') || message.includes('content_items_type_check')) {
+      if (
+        message.includes('published_at') ||
+        message.includes('content_items_type_check') ||
+        message.includes('meta_title') ||
+        message.includes('meta_description') ||
+        message.includes('og_image_path')
+      ) {
         throw new Error(
-          '블로그 스키마 마이그레이션이 아직 적용되지 않았습니다. Supabase SQL Editor에서 supabase/migrations/20260324_add_blog_support.sql 을 먼저 실행해주세요.'
+          '블로그/SEO 스키마 마이그레이션이 아직 적용되지 않았습니다. Supabase SQL Editor에서 supabase/migrations/20260324_add_blog_support.sql 과 supabase/migrations/20260324_add_seo_fields.sql 을 순서대로 실행해주세요.'
         );
       }
       throw err;
@@ -380,6 +424,10 @@ class ContentService {
       fileName: file.filename,
       storagePath: `/uploads/${file.filename}`,
     };
+  }
+
+  async uploadOgImageFile(tenantId, file) {
+    return this.uploadThumbnailFile(tenantId, file);
   }
 
   async deleteManagedFile(webPath) {

@@ -28,6 +28,7 @@ function buildAdminRoutes(adminController) {
     '/contents',
     upload.fields([
       { name: 'thumbnail', maxCount: 1 },
+      { name: 'og_image', maxCount: 1 },
       { name: 'attachments', maxCount: 20 },
     ]),
     adminController.createContent
@@ -38,6 +39,7 @@ function buildAdminRoutes(adminController) {
     '/contents/:id/update',
     upload.fields([
       { name: 'thumbnail', maxCount: 1 },
+      { name: 'og_image', maxCount: 1 },
       { name: 'attachments', maxCount: 20 },
     ]),
     adminController.updateContent

@@ -38,10 +38,34 @@
     </div>
 
     <div class="form-row">
-      <label for="summary">요약 / 메타 설명</label>
+      <label for="summary">요약 (목록용)</label>
       <textarea id="summary" name="summary" maxlength="500" style="min-height: 90px;"><%= item.summary || '' %></textarea>
-      <small style="color: var(--text-faint);">목록 설명과 검색엔진 meta description에 함께 사용됩니다.</small>
+      <small style="color: var(--text-faint);">카드 목록 설명에 사용됩니다. 검색용 설명은 아래 SEO 전용 필드에 별도로 입력하세요.</small>
     </div>
+
+    <section class="admin-panel content-type-tips">
+      <strong>SEO 전용 필드</strong>
+      <div class="form-row">
+        <label for="meta_title">Meta Title (검색 결과 제목)</label>
+        <input id="meta_title" name="meta_title" maxlength="160" value="<%= item.meta_title || '' %>" placeholder="비워두면 기본 제목을 사용합니다." />
+      </div>
+      <div class="form-row">
+        <label for="meta_description">Meta Description (검색 결과 설명)</label>
+        <textarea id="meta_description" name="meta_description" maxlength="500" style="min-height: 110px;"><%= item.meta_description || '' %></textarea>
+      </div>
+      <div class="form-row">
+        <label for="og_image_path">OG Image URL/Path</label>
+        <input id="og_image_path" name="og_image_path" maxlength="1000" value="<%= item.og_image_path || '' %>" placeholder="/uploads/og-image.jpg 또는 https://..." />
+        <small style="color: var(--text-faint);">입력하면 썸네일보다 우선합니다.</small>
+      </div>
+      <div class="form-row">
+        <label for="og_image">OG Image 파일 업로드</label>
+        <input id="og_image" name="og_image" type="file" accept="image/*,video/*" />
+        <% if (item.og_image_path) { %>
+          <small style="color: var(--text-faint);">현재 OG 이미지: <%= item.og_image_path %></small>
+        <% } %>
+      </div>
+    </section>
 
     <div class="form-row">
       <label for="body">본문 (긴 글 작성용)</label>

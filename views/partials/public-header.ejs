@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= pageTitle %></title>
+    <title><%= metaTitle || pageTitle %></title>
     <meta name="description" content="<%= metaDescription || '민들레효과는 광고비가 남는 구조를 만드는 운영 파트너입니다.' %>" />
     <meta name="robots" content="<%= metaRobots || 'index, follow' %>" />
     <% if (canonicalUrl) { %>
