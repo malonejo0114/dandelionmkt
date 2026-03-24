@@ -75,7 +75,7 @@ class ContentService {
     });
     item.validate();
 
-    const created = await this.contentRepository.create(item);
+    const created = await this.persistContent(() => this.contentRepository.create(item));
 
     if (files?.attachments?.length) {
       await this.attachFiles(tenantId, created.id, files.attachments);
@@ -120,7 +120,7 @@ class ContentService {
     });
     item.validate();
 
-    await this.contentRepository.update(item);
+    await this.persistContent(() => this.contentRepository.update(item));
 
     if (files?.attachments?.length) {
       await this.attachFiles(tenantId, id, files.attachments);
@@ -326,6 +326,20 @@ class ContentService {
 
   static normalizeType(value, fallback = 'portfolio') {
     return CONTENT_TYPES.includes(value) ? value : fallback;
+  }
+
+  async persistContent(action) {
+    try {
+      return await action();
+    } catch (err) {
+      const message = String(err?.message || '');
+      if (message.includes('published_at') || message.includes('content_items_type_check')) {
+        throw new Error(
+          '블로그 스키마 마이그레이션이 아직 적용되지 않았습니다. Supabase SQL Editor에서 supabase/migrations/20260324_add_blog_support.sql 을 먼저 실행해주세요.'
+        );
+      }
+      throw err;
+    }
   }
 
   async uploadThumbnailFile(tenantId, file) {
