@@ -9,6 +9,7 @@ class ContentItem {
     body = '',
     status = 'draft',
     thumbnailPath = null,
+    publishedAt = null,
     createdAt = null,
     updatedAt = null,
   }) {
@@ -21,13 +22,14 @@ class ContentItem {
     this.body = body;
     this.status = status;
     this.thumbnailPath = thumbnailPath;
+    this.publishedAt = publishedAt;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
 
   validate() {
     if (!this.tenantId) throw new Error('tenantId is required');
-    if (!['portfolio', 'service'].includes(this.type)) throw new Error('Invalid content type');
+    if (!['portfolio', 'service', 'blog'].includes(this.type)) throw new Error('Invalid content type');
     if (!this.title || this.title.trim().length < 2) throw new Error('Title must be at least 2 characters');
     if (!this.slug || this.slug.trim().length < 2) throw new Error('Slug is required');
     if (!['draft', 'published'].includes(this.status)) throw new Error('Invalid status');

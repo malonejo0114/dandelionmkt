@@ -4,6 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= pageTitle %></title>
+    <meta name="description" content="<%= metaDescription || '민들레효과는 광고비가 남는 구조를 만드는 운영 파트너입니다.' %>" />
+    <meta name="robots" content="<%= metaRobots || 'index, follow' %>" />
+    <% if (canonicalUrl) { %>
+      <link rel="canonical" href="<%= canonicalUrl %>" />
+    <% } %>
+    <meta property="og:type" content="<%= currentPath && currentPath.startsWith('/blog/') ? 'article' : 'website' %>" />
+    <meta property="og:title" content="<%= metaTitle || pageTitle %>" />
+    <meta property="og:description" content="<%= metaDescription || '민들레효과는 광고비가 남는 구조를 만드는 운영 파트너입니다.' %>" />
+    <% if (canonicalUrl) { %>
+      <meta property="og:url" content="<%= canonicalUrl %>" />
+    <% } %>
+    <% if (metaImage) { %>
+      <meta property="og:image" content="<%= metaImage %>" />
+    <% } %>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<%= metaTitle || pageTitle %>" />
+    <meta name="twitter:description" content="<%= metaDescription || '민들레효과는 광고비가 남는 구조를 만드는 운영 파트너입니다.' %>" />
+    <% if (metaImage) { %>
+      <meta name="twitter:image" content="<%= metaImage %>" />
+    <% } %>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -11,6 +31,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/styles/main.css" />
+    <% if (jsonLd) { %>
+      <script type="application/ld+json"><%- JSON.stringify(jsonLd).replace(/</g, '\\u003c') %></script>
+    <% } %>
   </head>
   <body>
     <div class="watermark" aria-hidden="true">Dandelion</div>
@@ -21,6 +44,7 @@
           <a class="<%= currentPath.startsWith('/about') ? 'is-active' : '' %>" href="/about">About Us</a>
           <a class="<%= currentPath.startsWith('/portfolio') ? 'is-active' : '' %>" href="/portfolio">Portfolio</a>
           <a class="<%= currentPath.startsWith('/service') ? 'is-active' : '' %>" href="/service">Service</a>
+          <a class="<%= currentPath.startsWith('/blog') ? 'is-active' : '' %>" href="/blog">Blog</a>
           <a class="<%= currentPath.startsWith('/contact') ? 'is-active' : '' %>" href="/contact">Contact</a>
         </nav>
       </div>

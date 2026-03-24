@@ -4,7 +4,9 @@
   <section class="admin-page-head">
     <p class="admin-kicker"><%= mode === 'create' ? 'Create Content' : 'Edit Content' %></p>
     <h1 class="section-title" style="margin-bottom: 0;">
-      <%= mode === 'create' ? (type === 'portfolio' ? '포트폴리오 추가' : '서비스 추가') : '콘텐츠 수정' %>
+      <%= mode === 'create'
+        ? (type === 'portfolio' ? '포트폴리오 추가' : type === 'service' ? '서비스 추가' : '블로그 글 추가')
+        : '콘텐츠 수정' %>
     </h1>
   </section>
 
@@ -30,9 +32,31 @@
     </div>
 
     <div class="form-row">
-      <label for="summary">요약</label>
-      <textarea id="summary" name="summary" maxlength="500" style="min-height: 90px;"><%= item.summary || '' %></textarea>
+      <label for="slug">Slug / URL</label>
+      <input id="slug" name="slug" value="<%= item.slug || '' %>" maxlength="160" placeholder="비워두면 제목 기준으로 자동 생성됩니다." />
+      <small style="color: var(--text-faint);">SEO를 위해 짧고 명확한 영문/숫자 slug를 권장합니다. 예: meta-ads-roas-guide</small>
     </div>
+
+    <div class="form-row">
+      <label for="summary">요약 / 메타 설명</label>
+      <textarea id="summary" name="summary" maxlength="500" style="min-height: 90px;"><%= item.summary || '' %></textarea>
+      <small style="color: var(--text-faint);">목록 설명과 검색엔진 meta description에 함께 사용됩니다.</small>
+    </div>
+
+    <div class="form-row">
+      <label for="body">본문 (긴 글 작성용)</label>
+      <textarea id="body" name="body" maxlength="20000" style="min-height: 260px;"><%= item.body || '' %></textarea>
+      <small style="color: var(--text-faint);">블로그처럼 자세히 쓰려면 여기 본문을 우선 사용하세요. 블록 에디터는 이미지/영상 섹션 보강용으로 쓰면 됩니다.</small>
+    </div>
+
+    <section class="admin-panel content-type-tips">
+      <strong><%= type === 'blog' ? '블로그 SEO 체크' : '콘텐츠 발행 체크' %></strong>
+      <ul>
+        <li>제목은 검색 결과에서 잘리는 길이를 고려해 60자 내외로 유지하는 편이 좋습니다.</li>
+        <li><%= type === 'blog' ? 'slug는 영문/숫자 중심으로 짧게 두고, summary는 메타 설명으로 바로 사용됩니다.' : 'slug와 summary를 비워두지 말아야 목록/검색엔진 품질이 안정적입니다.' %></li>
+        <li><%= type === 'blog' ? '긴 본문은 위 textarea에 쓰고, 이미지/영상은 아래 블록 에디터로 보강하세요.' : '본문 설명과 시각 자료를 함께 넣어야 상세 페이지 체류 시간이 좋아집니다.' %></li>
+      </ul>
+    </section>
 
     <div class="form-row">
       <label>블록 에디터 (드래그 정렬 가능)</label>

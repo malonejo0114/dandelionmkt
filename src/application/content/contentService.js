@@ -4,6 +4,7 @@ const slugify = require('slugify');
 
 const projectRoot = path.resolve(__dirname, '../../..');
 const ContentItem = require('../../domain/content/contentItem');
+const CONTENT_TYPES = ['portfolio', 'service', 'blog'];
 
 class ContentService {
   constructor(contentRepository, mediaRepository, storageService = null) {
@@ -13,7 +14,12 @@ class ContentService {
   }
 
   async listPublished(tenantId, type) {
-    return this.contentRepository.listPublishedByType(tenantId, type);
+    const items = await this.contentRepository.listPublishedByType(tenantId, type);
+    return [...items].sort((left, right) => {
+      const leftTime = new Date(left.published_at || left.created_at || 0).getTime();
+      const rightTime = new Date(right.published_at || right.created_at || 0).getTime();
+      return rightTime - leftTime;
+    });
   }
 
   async listAdmin(tenantId, type) {
@@ -43,7 +49,12 @@ class ContentService {
   }
 
   async create(tenantId, payload, files) {
-    const slug = await this.ensureUniqueSlug(tenantId, payload.type, payload.title);
+    const slug = await this.ensureUniqueSlug(
+      tenantId,
+      payload.type,
+      payload.slug || payload.title,
+      null
+    );
     const thumbnailPath = files?.thumbnail?.[0]
       ? await this.uploadThumbnailFile(tenantId, files.thumbnail[0])
       : null;
@@ -60,6 +71,7 @@ class ContentService {
       body: bodyFallback,
       status: payload.status || 'draft',
       thumbnailPath,
+      publishedAt: this.resolvePublishedAt(null, payload.status || 'draft'),
     });
     item.validate();
 
@@ -81,7 +93,12 @@ class ContentService {
       throw new Error('Content not found');
     }
 
-    const slug = await this.ensureUniqueSlug(tenantId, existing.type, payload.title, id);
+    const slug = await this.ensureUniqueSlug(
+      tenantId,
+      existing.type,
+      payload.slug || payload.title,
+      id
+    );
     const newThumbnailPath = files?.thumbnail?.[0]
       ? await this.uploadThumbnailFile(tenantId, files.thumbnail[0])
       : existing.thumbnail_path;
@@ -99,6 +116,7 @@ class ContentService {
       body: bodyFallback,
       status: payload.status || 'draft',
       thumbnailPath: newThumbnailPath,
+      publishedAt: this.resolvePublishedAt(existing, payload.status || 'draft'),
     });
     item.validate();
 
@@ -263,6 +281,11 @@ class ContentService {
   }
 
   composeBodyFallback(blocks, bodyText) {
+    const baseBody = String(bodyText || '').trim();
+    if (baseBody) {
+      return baseBody;
+    }
+
     if (blocks && blocks.length) {
       const textBlocks = blocks
         .filter((block) => block.blockType === 'text' && block.contentText)
@@ -272,11 +295,11 @@ class ContentService {
         return textBlocks.join('\n\n');
       }
     }
-    return bodyText || '';
+    return baseBody;
   }
 
-  async ensureUniqueSlug(tenantId, type, title, excludeId = null) {
-    const base = slugify(title || 'item', {
+  async ensureUniqueSlug(tenantId, type, source, excludeId = null) {
+    const base = slugify(source || 'item', {
       lower: true,
       strict: true,
       trim: true,
@@ -291,6 +314,18 @@ class ContentService {
       cursor += 1;
     }
     return candidate;
+  }
+
+  resolvePublishedAt(existing, status) {
+    if (status !== 'published') {
+      return existing?.published_at || null;
+    }
+
+    return existing?.published_at || new Date().toISOString();
+  }
+
+  static normalizeType(value, fallback = 'portfolio') {
+    return CONTENT_TYPES.includes(value) ? value : fallback;
   }
 
   async uploadThumbnailFile(tenantId, file) {

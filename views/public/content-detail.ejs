@@ -1,11 +1,16 @@
 <%- include('../partials/public-header') %>
 
 <main class="page">
+  <% const publishedLabel = item.published_at || item.created_at; %>
+  <% const detailBodyParagraphs = String(item.body || '').split(/\n{2,}/).map((row) => row.trim()).filter(Boolean); %>
+  <% const readingMinutes = Math.max(1, Math.ceil(String(item.body || '').replace(/\s+/g, '').length / 700)); %>
   <article class="detail-wrap">
     <header class="detail-hero">
-      <p class="detail-kicker"><%= type === 'portfolio' ? 'Case Detail' : 'Service Detail' %></p>
+      <p class="detail-kicker"><%= type === 'portfolio' ? 'Case Detail' : type === 'service' ? 'Service Detail' : 'Blog Article' %></p>
       <h1 class="detail-title"><%= item.title %></h1>
-      <p class="detail-meta"><%= type %> · <%= item.created_at %></p>
+      <p class="detail-meta">
+        <%= type %> · <%= publishedLabel %><% if (type === 'blog' && detailBodyParagraphs.length) { %> · <%= readingMinutes %> min read<% } %>
+      </p>
       <% if (item.summary) { %>
         <p class="detail-summary"><%= item.summary %></p>
       <% } %>
@@ -23,6 +28,14 @@
     <% } %>
 
     <% const hasBlocks = item.blocks && item.blocks.length > 0; %>
+    <% if (detailBodyParagraphs.length) { %>
+      <section class="detail-body detail-panel <%= type === 'blog' ? 'blog-prose' : '' %>">
+        <% detailBodyParagraphs.forEach((paragraph) => { %>
+          <p><%= paragraph %></p>
+        <% }) %>
+      </section>
+    <% } %>
+
     <% if (hasBlocks) { %>
       <section class="content-blocks detail-panel">
         <% item.blocks.forEach((block) => { %>
@@ -47,7 +60,7 @@
           <% } %>
         <% }) %>
       </section>
-    <% } else { %>
+    <% } else if (!detailBodyParagraphs.length) { %>
       <div class="detail-body detail-panel"><%= item.body || '등록된 상세 설명이 없습니다.' %></div>
     <% } %>
 

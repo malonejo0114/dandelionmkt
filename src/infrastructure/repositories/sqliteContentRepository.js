@@ -56,8 +56,8 @@ class SqliteContentRepository {
   async create(item) {
     const result = await run(
       `INSERT INTO content_items
-      (tenant_id, type, title, slug, summary, body, status, thumbnail_path)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      (tenant_id, type, title, slug, summary, body, status, thumbnail_path, published_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         item.tenantId,
         item.type,
@@ -67,6 +67,7 @@ class SqliteContentRepository {
         item.body,
         item.status,
         item.thumbnailPath,
+        item.publishedAt,
       ]
     );
 
@@ -76,7 +77,7 @@ class SqliteContentRepository {
   async update(item) {
     await run(
       `UPDATE content_items
-       SET title = ?, slug = ?, summary = ?, body = ?, status = ?, thumbnail_path = ?, updated_at = datetime('now')
+       SET title = ?, slug = ?, summary = ?, body = ?, status = ?, thumbnail_path = ?, published_at = ?, updated_at = datetime('now')
        WHERE tenant_id = ? AND id = ?`,
       [
         item.title,
@@ -85,6 +86,7 @@ class SqliteContentRepository {
         item.body,
         item.status,
         item.thumbnailPath,
+        item.publishedAt,
         item.tenantId,
         item.id,
       ]

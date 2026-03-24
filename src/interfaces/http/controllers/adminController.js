@@ -49,6 +49,10 @@ class AdminController {
     return req.session.admin?.id || null;
   }
 
+  normalizeContentType(value) {
+    return ['portfolio', 'service', 'blog'].includes(value) ? value : 'portfolio';
+  }
+
   renderLogin(req, res) {
     if (req.session.admin) {
       res.redirect('/admin');
@@ -121,6 +125,7 @@ class AdminController {
       const tenantId = this.getTenantId(req);
       const portfolioItems = await this.contentService.listAdmin(tenantId, 'portfolio');
       const serviceItems = await this.contentService.listAdmin(tenantId, 'service');
+      const blogItems = await this.contentService.listAdmin(tenantId, 'blog');
       const inquiries = await this.inquiryService.listAll(tenantId);
 
       res.render('admin/dashboard', {
@@ -128,6 +133,7 @@ class AdminController {
         stats: {
           portfolioCount: portfolioItems.length,
           serviceCount: serviceItems.length,
+          blogCount: blogItems.length,
           inquiryCount: inquiries.length,
           newInquiryCount: inquiries.filter((item) => item.status === 'NEW').length,
         },
@@ -140,7 +146,7 @@ class AdminController {
   async listContents(req, res, next) {
     try {
       const tenantId = this.getTenantId(req);
-      const type = req.query.type === 'service' ? 'service' : 'portfolio';
+      const type = this.normalizeContentType(req.query.type);
       const items = await this.contentService.listAdmin(tenantId, type);
 
       res.render('admin/content-list', {
@@ -156,7 +162,7 @@ class AdminController {
   async newContentForm(req, res, next) {
     try {
       const tenantId = this.getTenantId(req);
-      const type = req.query.type === 'service' ? 'service' : 'portfolio';
+      const type = this.normalizeContentType(req.query.type);
       const availableAssets = await this.contentService.listMediaLibrary(tenantId);
 
       res.render('admin/content-form', {
@@ -166,10 +172,12 @@ class AdminController {
         item: {
           id: null,
           title: '',
+          slug: '',
           summary: '',
           body: '',
           status: 'draft',
           thumbnail_path: '',
+          published_at: null,
           mediaAssets: [],
           blocks: [],
           blocksJson: '[]',
@@ -187,12 +195,13 @@ class AdminController {
     const tenantId = this.getTenantId(req);
 
     try {
-      const type = req.body.type === 'service' ? 'service' : 'portfolio';
+      const type = this.normalizeContentType(req.body.type);
       await this.contentService.create(
         tenantId,
         {
           type,
           title: req.body.title,
+          slug: req.body.slug,
           summary: req.body.summary,
           body: req.body.body,
           blocksJson: req.body.blocks_json,
@@ -261,6 +270,7 @@ class AdminController {
         id,
         {
           title: req.body.title,
+          slug: req.body.slug,
           summary: req.body.summary,
           body: req.body.body,
           blocksJson: req.body.blocks_json,

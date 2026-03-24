@@ -72,6 +72,55 @@ async function ensureDefaultTenantSettings(tenantId) {
   }
 }
 
+async function ensureContentItemsSupportBlog() {
+  const row = await get(
+    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'content_items'"
+  );
+
+  if (!row?.sql || row.sql.includes("'blog'")) {
+    return;
+  }
+
+  await run('PRAGMA foreign_keys = OFF');
+  try {
+    await run('BEGIN TRANSACTION');
+    await run(`
+      CREATE TABLE content_items_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id INTEGER NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('portfolio', 'service', 'blog')),
+        title TEXT NOT NULL,
+        slug TEXT NOT NULL,
+        summary TEXT,
+        body TEXT,
+        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+        thumbnail_path TEXT,
+        published_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE (tenant_id, type, slug),
+        FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
+      )
+    `);
+
+    await run(`
+      INSERT INTO content_items_new
+      (id, tenant_id, type, title, slug, summary, body, status, thumbnail_path, created_at, updated_at)
+      SELECT id, tenant_id, type, title, slug, summary, body, status, thumbnail_path, created_at, updated_at
+      FROM content_items
+    `);
+
+    await run('DROP TABLE content_items');
+    await run('ALTER TABLE content_items_new RENAME TO content_items');
+    await run('COMMIT');
+  } catch (err) {
+    await run('ROLLBACK');
+    throw err;
+  } finally {
+    await run('PRAGMA foreign_keys = ON');
+  }
+}
+
 async function initSchema() {
   await run('PRAGMA foreign_keys = ON');
 
@@ -121,19 +170,25 @@ async function initSchema() {
     CREATE TABLE IF NOT EXISTS content_items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       tenant_id INTEGER NOT NULL,
-      type TEXT NOT NULL CHECK (type IN ('portfolio', 'service')),
+      type TEXT NOT NULL CHECK (type IN ('portfolio', 'service', 'blog')),
       title TEXT NOT NULL,
       slug TEXT NOT NULL,
       summary TEXT,
       body TEXT,
       status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
       thumbnail_path TEXT,
+      published_at TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       UNIQUE (tenant_id, type, slug),
       FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
     )
   `);
+  await ensureContentItemsSupportBlog();
+  await ensureColumn('content_items', 'published_at', 'TEXT');
+  await run(
+    "UPDATE content_items SET published_at = created_at WHERE status = 'published' AND published_at IS NULL"
+  );
 
   await run(`
     CREATE TABLE IF NOT EXISTS media_assets (

@@ -4,6 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>주식회사 민들레효과</title>
+    <meta name="description" content="<%= metaDescription || '민들레효과는 광고비가 남는 구조를 만드는 운영 파트너입니다.' %>" />
+    <meta name="robots" content="<%= metaRobots || 'index, follow' %>" />
+    <% if (canonicalUrl) { %>
+      <link rel="canonical" href="<%= canonicalUrl %>" />
+      <meta property="og:url" content="<%= canonicalUrl %>" />
+    <% } %>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="<%= metaTitle || pageTitle || '주식회사 민들레효과' %>" />
+    <meta property="og:description" content="<%= metaDescription || '민들레효과는 광고비가 남는 구조를 만드는 운영 파트너입니다.' %>" />
+    <% if (metaImage) { %>
+      <meta property="og:image" content="<%= metaImage %>" />
+      <meta name="twitter:image" content="<%= metaImage %>" />
+    <% } %>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<%= metaTitle || pageTitle || '주식회사 민들레효과' %>" />
+    <meta name="twitter:description" content="<%= metaDescription || '민들레효과는 광고비가 남는 구조를 만드는 운영 파트너입니다.' %>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -1034,6 +1050,7 @@
         <a href="/about">ABOUT</a>
         <a href="/portfolio">PORTFOLIO</a>
         <a href="/service">SERVICE</a>
+        <a href="/blog">BLOG</a>
         <a href="/contact">CONTACT</a>
       </nav>
     </header>

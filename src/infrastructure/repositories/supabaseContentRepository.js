@@ -80,6 +80,7 @@ class SupabaseContentRepository {
       body: item.body,
       status: item.status,
       thumbnail_path: item.thumbnailPath,
+      published_at: item.publishedAt,
     };
 
     const { data, error } = await this.db
@@ -99,6 +100,7 @@ class SupabaseContentRepository {
       body: item.body,
       status: item.status,
       thumbnail_path: item.thumbnailPath,
+      published_at: item.publishedAt,
       updated_at: new Date().toISOString(),
     };
 
