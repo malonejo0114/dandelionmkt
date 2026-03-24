@@ -18,6 +18,7 @@
         --fg-faint: rgba(255, 255, 255, 0.56);
         --line: rgba(255, 255, 255, 0.2);
         --accent: #ffd24d;
+        --accent-soft: rgba(255, 210, 77, 0.18);
         --header-h: 60px;
         --intro-mask-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1900 860'%3E%3Cg fill='white' text-anchor='middle' font-family='Bebas%20Neue,Impact,Arial%20Narrow,sans-serif' letter-spacing='10'%3E%3Ctext x='950' y='356' font-size='300'%3EDANDELION%3C/text%3E%3Ctext x='950' y='710' font-size='286'%3EEFFECT%3C/text%3E%3C/g%3E%3C/svg%3E");
         --intro-outline-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1900 860'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.9' stroke-width='8' stroke-linejoin='round' paint-order='stroke' text-anchor='middle' font-family='Bebas%20Neue,Impact,Arial%20Narrow,sans-serif' letter-spacing='10'%3E%3Ctext x='950' y='356' font-size='300'%3EDANDELION%3C/text%3E%3Ctext x='950' y='710' font-size='286'%3EEFFECT%3C/text%3E%3C/g%3E%3C/svg%3E");
@@ -38,6 +39,9 @@
         font-family: "Space Mono", "Pretendard", "Noto Sans KR",
           "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
         overflow-x: hidden;
+        background-image:
+          radial-gradient(circle at 18% 0%, rgba(255, 210, 77, 0.08), transparent 26%),
+          radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.04), transparent 24%);
       }
 
       a {
@@ -324,6 +328,33 @@
 
       .hero-copy {
         max-width: min(92vw, 980px);
+        display: grid;
+        justify-items: center;
+        gap: 1rem;
+      }
+
+      .hero-kicker,
+      .about-kicker,
+      .portfolio-kicker,
+      .contact-tag {
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-size: clamp(0.72rem, 1vw, 0.84rem);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--fg-faint);
+      }
+
+      .hero-kicker::before,
+      .about-kicker::before,
+      .portfolio-kicker::before,
+      .contact-tag::before {
+        content: "";
+        width: 2.4rem;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(255, 210, 77, 0.9), rgba(255, 255, 255, 0.14));
       }
 
       .hero-copy h1 {
@@ -342,11 +373,29 @@
       }
 
       .hero-sub {
-        margin-top: 1.25rem;
+        margin-top: 0;
         color: var(--fg-faint);
         letter-spacing: 0.14em;
         font-size: clamp(0.66rem, 1.2vw, 0.82rem);
         text-transform: uppercase;
+      }
+
+      .hero-meta {
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+        color: var(--fg-soft);
+        font-size: clamp(0.72rem, 1vw, 0.88rem);
+        letter-spacing: 0.08em;
+      }
+
+      .hero-meta span {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        padding: 0.46rem 0.72rem;
+        border-radius: 999px;
       }
 
       #about {
@@ -356,12 +405,18 @@
         text-align: center;
         padding: clamp(4rem, 11vh, 7rem) 1.4rem;
         overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 50%, rgba(255, 210, 77, 0.08), transparent 32%),
+          linear-gradient(180deg, rgba(6, 6, 6, 0.96), rgba(5, 5, 5, 1));
       }
 
       .about-inner {
         position: relative;
         z-index: 2;
         max-width: 920px;
+        display: grid;
+        justify-items: center;
+        gap: 1rem;
       }
 
       .about-dandelion-field {
@@ -478,8 +533,17 @@
         font-weight: 700;
       }
 
+      .about-support {
+        margin: 0;
+        max-width: 620px;
+        color: var(--fg-faint);
+        font-size: clamp(0.82rem, 1.25vw, 0.96rem);
+        line-height: 1.8;
+        letter-spacing: 0.05em;
+      }
+
       .about-statement {
-        margin-top: clamp(1.25rem, 3.7vw, 2.2rem);
+        margin-top: clamp(1rem, 3.7vw, 1.8rem);
         display: grid;
         justify-items: center;
         text-align: center;
@@ -499,11 +563,19 @@
 
       #portfolio {
         padding: clamp(4rem, 9vw, 6rem) 0;
+        background:
+          linear-gradient(180deg, rgba(5, 5, 5, 1), rgba(10, 10, 10, 0.96)),
+          #050505;
+      }
+
+      .portfolio-head {
+        display: grid;
+        gap: 0.8rem;
+        padding: 0 clamp(1.2rem, 5vw, 3rem) 1.5rem;
       }
 
       .portfolio-title {
-        margin: 0 0 1.25rem;
-        padding: 0 clamp(1.2rem, 5vw, 3rem);
+        margin: 0;
         font-family: "Bebas Neue", sans-serif;
         text-transform: lowercase;
         letter-spacing: 0.06em;
@@ -511,6 +583,14 @@
         opacity: 0;
         transform: translateY(28px);
         transition: transform 0.6s ease, opacity 0.6s ease;
+      }
+
+      .portfolio-summary {
+        margin: 0;
+        max-width: 620px;
+        color: var(--fg-soft);
+        font-size: clamp(0.84rem, 1.1vw, 0.96rem);
+        line-height: 1.8;
       }
 
       .marquee {
@@ -607,9 +687,16 @@
         place-items: center;
         text-align: center;
         padding: clamp(4.2rem, 12vh, 8rem) 1.2rem 2rem;
+        background:
+          radial-gradient(circle at 50% 10%, rgba(255, 210, 77, 0.08), transparent 30%),
+          linear-gradient(180deg, rgba(10, 10, 10, 0.92), rgba(5, 5, 5, 1));
       }
 
       .contact-wrap {
+        width: min(920px, 92vw);
+        display: grid;
+        justify-items: center;
+        gap: 0.8rem;
         opacity: 0;
         transform: translateY(30px);
         transition: transform 0.6s ease, opacity 0.6s ease;
@@ -640,7 +727,7 @@
 
       .contact-cta {
         display: inline-block;
-        margin-top: 1.5rem;
+        margin-top: 1rem;
         font-size: clamp(0.86rem, 1.9vw, 1rem);
         letter-spacing: 0.08em;
         color: var(--fg);
@@ -649,7 +736,7 @@
       }
 
       .footer-note {
-        margin-top: 2.6rem;
+        margin-top: 2rem;
         font-size: 0.72rem;
         letter-spacing: 0.09em;
         color: var(--fg-faint);
@@ -980,21 +1067,29 @@
         </div>
 
         <div class="hero-copy">
+          <p class="hero-kicker">Performance Operating Partner</p>
           <h1>
             <span>광고비는 계속 쓰는데</span>
             <span>남는 건 없나요?</span>
           </h1>
           <p class="hero-sub">민들레효과 | 통합 운영</p>
+          <p class="hero-meta">
+            <span>예약이 남는 구조</span>
+            <span>문의가 쌓이는 구조</span>
+            <span>매출이 남는 구조</span>
+          </p>
         </div>
       </section>
 
       <section id="about" aria-label="운영 철학">
         <div class="about-dandelion-field" data-dandelion-field aria-hidden="true"></div>
         <div class="about-inner">
+          <p class="about-kicker">About the Operator</p>
           <p class="about-line">
             <span class="rotate-slot"><span id="rotateWord" class="rotate-word">노출은</span></span>
             <span class="about-purpose">목적이 아닙니다.</span>
           </p>
+          <p class="about-support">민들레효과는 보여지는 수치보다, 실제로 예약과 문의와 매출이 남는 운영 구조를 먼저 설계합니다.</p>
           <div id="aboutStatement" class="about-statement reveal">
             <div>보여주기 위한 마케팅이 아니라</div>
             <div><span class="bep-emphasis">BEP</span>를 넘기는 운영을 합니다.</div>
@@ -1003,7 +1098,11 @@
       </section>
 
       <section id="portfolio" aria-label="포트폴리오">
-        <h2 id="portfolioTitle" class="portfolio-title reveal">portfolio</h2>
+        <div class="portfolio-head">
+          <p class="portfolio-kicker">Selected Works</p>
+          <h2 id="portfolioTitle" class="portfolio-title reveal">portfolio</h2>
+          <p class="portfolio-summary">관리자에서 저장한 포트폴리오가 메인에서도 바로 순환합니다. 중앙 카드만 컬러와 타이틀을 드러내고, 나머지는 흑백으로 눌러 대비를 만들었습니다.</p>
+        </div>
         <%
           const fallbackPortfolio = [
             "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
@@ -1056,6 +1155,7 @@
 
       <section id="contact" aria-label="문의">
         <div id="contactWrap" class="contact-wrap reveal">
+          <p class="contact-tag">Closing Statement</p>
           <p class="contact-kor">민들레는 남는 구조를 만듭니다.</p>
           <p class="contact-en">
             <span>Beyond the</span>
